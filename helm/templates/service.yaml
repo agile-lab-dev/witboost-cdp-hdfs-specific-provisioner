@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "cdp-private-hdfs-sp.name" . }}
+  labels:
+{{- include "cdp-private-hdfs-sp.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8888
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "cdp-private-hdfs-sp.name" . }}
