@@ -23,6 +23,16 @@ spec:
         - name: {{ .Values.dockerRegistrySecretName }}
       {{- end}}
       volumes:
+        - name: keytab-volume
+          secret:
+            secretName: witboost-addons-secrets
+            items:
+              - key: cdp-private-hdfs-keytab
+                path: cdp/private/hdfs/keytab
+        - name: config
+          configMap:
+            name: {{ template "cdp-private-hdfs-sp.fullname" . }}-config
+            defaultMode: 420
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.registry }}:{{ .Values.image.tag }}
@@ -58,7 +68,14 @@ spec:
               value: {{ .Values.otel.serviceName }}
             - name: OTEL_TRACES_EXPORTER
               value: {{ .Values.otel.tracesExporter }}
+            - name: SPRING_CONFIG_LOCATION
+              value: file:/opt/docker/etc/configs/application.yml
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
           volumeMounts:
+            - name: keytab-volume
+              mountPath: /opt/docker/etc/security
+              readOnly: true
+            - name: config
+              mountPath: /opt/docker/etc/configs

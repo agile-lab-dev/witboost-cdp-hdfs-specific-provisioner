@@ -105,7 +105,7 @@ pre-commit install
 - Java 17
 - Apache Maven 3.9+
 
-**Version:** the version is set dynamically via an environment variable, `PROVISIONER_VERSION`. Maker sure you have it exported, even for local development. Example:
+**Version:** the version is set dynamically via an environment variable, `PROVISIONER_VERSION`. Make sure you have it exported, even for local development. Example:
 
 ```bash
 export PROVISIONER_VERSION=0.0.0-SNAPHSOT
@@ -173,7 +173,21 @@ SwaggerUI is configured and hosted on the path `/docs`. You can access it [here]
 
 ## Configuring
 
-TODO
+Application configuration is handled using the features provided by Spring Boot. You can find the default settings in the `application.yml`. Customize it and use the `spring.config.location` system property or the other options provided by the framework according to your needs.
+
+### Kerberos configuration
+
+| Configuration           | Description                                          | 
+|:------------------------|:-----------------------------------------------------|
+| kerberos.keytabLocation | Location of the keytab to be used for authentication | 
+| kerberos.principal      | Principal                                            | 
+
+### Hdfs configuration
+
+| Configuration | Description                       | 
+|:--------------|:----------------------------------|
+| hdfs.baseUrl  | Base URL for the WEBHDFS Rest API | 
+| hdfs.timeout  | Timeout in milliseconds           | 
 
 ## Deploying
 

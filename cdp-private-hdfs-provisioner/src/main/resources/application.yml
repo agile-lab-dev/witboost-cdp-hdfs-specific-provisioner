@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: cdp-private-hdfs-specific-provisioner
+
+server:
+  port: 8888
+
+springdoc:
+  swagger-ui:
+    path: /docs
+
+kerberos:
+  keytabLocation: /my/path/keytab
+  principal: user
+
+hdfs:
+  baseUrl: http://hdfs-host
+  timeout: 30000

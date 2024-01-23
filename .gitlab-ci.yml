@@ -86,7 +86,7 @@ vulnerability_analysis:
   before_script:
     - mvn --version
   script:
-    - mvn package org.owasp:dependency-check-maven:check
+    - mvn -DskipTests package org.owasp:dependency-check-maven:check
   artifacts:
     when: always
     paths:
@@ -97,7 +97,7 @@ license_check:
   before_script:
     - mvn --version
   script:
-    - mvn package licensescan:audit
+    - mvn -DskipTests package licensescan:audit
   artifacts:
     when: always
     paths:
@@ -118,6 +118,18 @@ compile:
 
 test-jdk17:
   stage: test
+  services:
+    - docker:23.0.0-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+  before_script:
+    - curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+    - VERSION=23.0.0 sh /tmp/get-docker.sh
+    - echo '#!/usr/bin/env bash' > /bin/docker-compose
+    - echo 'docker compose "$@"' >> /bin/docker-compose
+    - chmod +x /bin/docker-compose
+    - docker --version
+    - docker-compose version
   script:
     - mvn $MAVEN_CLI_OPTS org.jacoco:jacoco-maven-plugin:prepare-agent test jacoco:report-aggregate
     - cat report/target/site/jacoco-aggregate/index.html | grep -o '<tfoot>.*</tfoot>'
@@ -143,7 +155,7 @@ coverage-jdk17:
 package:
   stage: package
   script:
-    - mvn $MAVEN_CLI_OPTS package spring-boot:repackage
+    - mvn -DskipTests $MAVEN_CLI_OPTS package spring-boot:repackage
   artifacts:
     paths:
       - cdp-private-hdfs-provisioner/target/*.jar
@@ -151,7 +163,7 @@ package:
 publish:
   stage: publish
   script:
-    - mvn deploy -s ci_settings.xml
+    - mvn -DskipTests deploy -s ci_settings.xml
 
 docker_build:
   stage: publish

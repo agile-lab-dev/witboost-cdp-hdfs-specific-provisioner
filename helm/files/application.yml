@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: cdp-private-hdfs-specific-provisioner
+
+server:
+  port: 8888
+
+springdoc:
+  swagger-ui:
+    path: /docs
+
+kerberos:
+  keytabLocation: /opt/docker/etc/security/cdp/private/hdfs/keytab
+  principal: user
+
+hdfs:
+  baseUrl: http://webhdfs-host:50070
+  timeout: 30000
