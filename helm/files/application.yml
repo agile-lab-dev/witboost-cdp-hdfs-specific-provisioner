@@ -16,3 +16,7 @@ kerberos:
 hdfs:
   baseUrl: http://webhdfs-host:50070
   timeout: 30000
+
+ranger:
+  baseUrl: http://ranger-host
+  timeout: 30000

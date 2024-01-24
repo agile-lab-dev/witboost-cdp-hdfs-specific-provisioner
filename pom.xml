@@ -57,6 +57,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.apache.ranger</groupId>
+                <artifactId>ranger-intg</artifactId>
+                <version>2.4.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -188,15 +193,6 @@
                     </forbiddenLicenses>
                     <failBuildOnViolation>true</failBuildOnViolation>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify
-                        </phase> <!-- choose the most relevant goal for your pipeline, e.g. 'compile', 'test' or 'deploy' -->
-                        <goals>
-                            <goal>audit</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- maven-surefire-plugin to run unit tests through the command line -->

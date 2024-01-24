@@ -169,6 +169,10 @@
             <groupId>org.springframework.security.kerberos</groupId>
             <artifactId>spring-security-kerberos-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.ranger</groupId>
+            <artifactId>ranger-intg</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>

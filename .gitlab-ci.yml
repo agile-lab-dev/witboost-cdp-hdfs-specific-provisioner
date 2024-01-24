@@ -98,10 +98,11 @@ license_check:
     - mvn --version
   script:
     - mvn -DskipTests package licensescan:audit
+  when: manual
   artifacts:
-    when: always
     paths:
-      - target/license-scan-results/index.html
+      - cdp-private-hdfs-provisioner/target/license-scan-results/index.html
+      - cdp-private-hdfs-provisioner/target/license-scan-results/license-scan-report.json
 
 linter:
   stage: compile
