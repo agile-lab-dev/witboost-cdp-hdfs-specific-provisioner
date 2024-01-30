@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.config.HdfsConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.testcontainers.containers.GenericContainer;
@@ -15,7 +16,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.MountableFile;
 
-@SpringBootTest
+@SpringBootTest(classes = {RestTemplateAutoConfiguration.class})
 @Testcontainers
 public class HdfsServiceIntegrationTest {
 

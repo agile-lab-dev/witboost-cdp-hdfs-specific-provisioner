@@ -1,4 +1,4 @@
-package it.agilelab.witboost.cdp.priv.hdfs.provisioning.rest;
+package it.agilelab.witboost.cdp.priv.hdfs.provisioning.bean;
 
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.config.KerberosConfig;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

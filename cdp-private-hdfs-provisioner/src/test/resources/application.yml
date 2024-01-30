@@ -20,3 +20,16 @@ hdfs:
 ranger:
   baseUrl: http://ranger-host
   timeout: 30000
+
+mapping:
+  ldap:
+    url: ldap://localhost:389
+    useTls: false
+    timeout: 30000
+    bindUsername: CN=admin,DC=agilelab,DC=it
+    bindPassword: admin
+    searchBaseDN: DC=agilelab,DC=it
+    userSearchFilter: (mail={mail})
+    groupSearchFilter: (&(objectClass=groupOfNames)(cn={group}))
+    userAttributeName: cn
+    groupAttributeName: cn

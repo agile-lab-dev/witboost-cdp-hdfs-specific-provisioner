@@ -189,6 +189,28 @@ Application configuration is handled using the features provided by Spring Boot.
 | hdfs.baseUrl  | Base URL for the WEBHDFS Rest API | 
 | hdfs.timeout  | Timeout in milliseconds           | 
 
+### Ranger configuration
+
+| Configuration  | Description                      | 
+|:---------------|:---------------------------------|
+| ranger.baseUrl | Base URL for the Ranger Rest API | 
+| ranger.timeout | Timeout in milliseconds          | 
+
+### Ldap configuration
+
+| Configuration                   | Description                                                                                                                                                                       | 
+|:--------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| mapping.ldap.url                | Ldap url                                                                                                                                                                          |
+| mapping.ldap.useTls             | Tls enable flag                                                                                                                                                                   |
+| mapping.ldap.timeout            | Timeout in milliseconds                                                                                                                                                           |
+| mapping.ldap.bindUsername       | Bind user                                                                                                                                                                         |
+| mapping.ldap.bindPassword       | Bind password. The default value in the chart is `${LDAP_BIND_PASSWORD}`. With this syntax Spring will retrieve the value from an environment variable named `LDAP_BIND_PASSWORD` |
+| mapping.ldap.searchBaseDN       | Base DN                                                                                                                                                                           |
+| mapping.ldap.userSearchFilter   | Ldap filter for user search                                                                                                                                                       |
+| mapping.ldap.groupSearchFilter  | Ldap filter for group search                                                                                                                                                      |
+| mapping.ldap.userAttributeName  | Ldap attribute name for user Id                                                                                                                                                   |
+| mapping.ldap.groupAttributeName | Ldap attribute name for group Id                                                                                                                                                  |
+
 ## Deploying
 
 This microservice is meant to be deployed to a Kubernetes cluster with the included Helm chart and the scripts that can be found in the `helm` subdirectory. You can find more details [here](helm/README.md).
