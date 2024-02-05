@@ -1,10 +1,12 @@
 package it.agilelab.witboost.cdp.priv.hdfs.provisioning.controller;
 
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.Problem;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.SpecificProvisionerValidationException;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.RequestValidationError;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.SystemError;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,17 +23,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class SpecificProvisionerExceptionHandler {
 
+    private final Logger logger = LoggerFactory.getLogger(SpecificProvisionerExceptionHandler.class);
+
     @ExceptionHandler({SpecificProvisionerValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected RequestValidationError handleConflict(SpecificProvisionerValidationException ex) {
-        List<String> list = new ArrayList<>();
-        list.add(ex.getMessage());
-        return new RequestValidationError(list);
+    protected RequestValidationError handleValidationException(
+            SpecificProvisionerValidationException ex) {
+        return new RequestValidationError(
+                ex.getFailedOperation().problems().stream()
+                        .map(Problem::description)
+                        .collect(Collectors.toList()));
     }
 
     @ExceptionHandler({RuntimeException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected SystemError handleConflict(RuntimeException ex) {
-        return new SystemError(ex.getMessage());
+    protected SystemError handleSystemError(RuntimeException ex) {
+        String errorMessage =
+                String.format(
+                        "An unexpected error occurred while processing the request. Please try again later. If the issue still persists, contact the platform team for assistance! Details: %s",
+                        ex.getMessage());
+        logger.error(errorMessage, ex);
+        return new SystemError(errorMessage);
     }
 }
