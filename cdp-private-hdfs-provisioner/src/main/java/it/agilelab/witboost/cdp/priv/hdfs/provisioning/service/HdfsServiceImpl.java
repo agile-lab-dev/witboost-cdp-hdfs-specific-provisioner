@@ -88,7 +88,7 @@ public class HdfsServiceImpl implements HdfsService {
     }
 
     private String buildCreateUrl(String path) {
-        String url = "/webhdfs/v1/{path}";
+        String url = "/webhdfs/v1{path}";
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("path", path);
         UriComponentsBuilder builder =
@@ -97,7 +97,7 @@ public class HdfsServiceImpl implements HdfsService {
     }
 
     private String buildDeleteUrl(String path) {
-        String url = "/webhdfs/v1/{path}";
+        String url = "/webhdfs/v1{path}";
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("path", path);
         UriComponentsBuilder builder =

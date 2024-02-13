@@ -182,6 +182,8 @@ Application configuration is handled using the features provided by Spring Boot.
 | kerberos.keytabLocation | Location of the keytab to be used for authentication | 
 | kerberos.principal      | Principal                                            | 
 
+The chart provides a `krb5.conf` that needs to be configured properly. This file will be mounted automatically in `/opt/docker/etc/configs/` and the application will load it using the system property `java.security.krb5.conf`.
+
 ### Hdfs configuration
 
 | Configuration | Description                       | 
@@ -191,10 +193,12 @@ Application configuration is handled using the features provided by Spring Boot.
 
 ### Ranger configuration
 
-| Configuration  | Description                      | 
-|:---------------|:---------------------------------|
-| ranger.baseUrl | Base URL for the Ranger Rest API | 
-| ranger.timeout | Timeout in milliseconds          | 
+| Configuration   | Description                                                                                                                                                                   | 
+|:----------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ranger.baseUrl  | Base URL for the Ranger Rest API                                                                                                                                              | 
+| ranger.timeout  | Timeout in milliseconds                                                                                                                                                       |
+| ranger.username | Ranger username                                                                                                                                                               |
+| ranger.password | Ranger password. The default value in the chart is `${RANGER_PASSWORD}`. With this syntax Spring will retrieve the value from an environment variable named `RANGER_PASSWORD` |
 
 ### Ldap configuration
 

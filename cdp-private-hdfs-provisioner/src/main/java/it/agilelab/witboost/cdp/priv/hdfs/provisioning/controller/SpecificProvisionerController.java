@@ -2,6 +2,7 @@ package it.agilelab.witboost.cdp.priv.hdfs.provisioning.controller;
 
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.controller.V1ApiDelegate;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ProvisioningRequest;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ProvisioningStatus;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ValidationResult;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.provision.ProvisionService;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +28,17 @@ public class SpecificProvisionerController implements V1ApiDelegate {
     public ResponseEntity<ValidationResult> validate(ProvisioningRequest provisioningRequest)
             throws Exception {
         return ResponseEntity.ok(provisionService.validate(provisioningRequest));
+    }
+
+    @Override
+    public ResponseEntity<ProvisioningStatus> provision(ProvisioningRequest provisioningRequest)
+            throws Exception {
+        return ResponseEntity.ok(provisionService.provision(provisioningRequest));
+    }
+
+    @Override
+    public ResponseEntity<ProvisioningStatus> unprovision(ProvisioningRequest provisioningRequest)
+            throws Exception {
+        return ResponseEntity.ok(provisionService.unprovision(provisioningRequest));
     }
 }

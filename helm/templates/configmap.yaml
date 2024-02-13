@@ -11,3 +11,9 @@ data:
   {{- else -}}
   {{- .Files.Get "files/application.yml" | nindent 4 }}
   {{ end }}
+  krb5.conf: |
+  {{- if .Values.krb5Override -}}
+  {{- .Values.krb5Override | nindent 4 }}
+  {{- else -}}
+  {{- .Files.Get "files/krb5.conf" | nindent 4 }}
+  {{ end }}

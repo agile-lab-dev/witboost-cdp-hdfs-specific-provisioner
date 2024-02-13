@@ -9,6 +9,12 @@ springdoc:
   swagger-ui:
     path: /docs
 
+logging:
+  level:
+    org.apache.ranger.RangerClient: DEBUG
+    sun.net.www.protocol.http.HttpURLConnection: DEBUG
+    org.apache.hc.client5.http: DEBUG
+
 kerberos:
   keytabLocation: /opt/docker/etc/security/cdp/private/hdfs/keytab
   principal: user
@@ -20,6 +26,9 @@ hdfs:
 ranger:
   baseUrl: http://ranger-host
   timeout: 30000
+  username: admin
+  password: ${RANGER_PASSWORD}
+  hdfsServiceName: cm_hdfs
 
 mapping:
   ldap:

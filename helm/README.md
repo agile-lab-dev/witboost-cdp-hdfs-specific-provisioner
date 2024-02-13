@@ -26,6 +26,7 @@ A Helm chart for Kubernetes
 | image.pullPolicy | string | `"Always"` | The imagePullPolicy for a container and the tag of the image affect when the kubelet attempts to pull (download) the specified image. |
 | image.registry | string | `"registry.gitlab.com/agilefactory/witboost.mesh/provisioning/cdp-refresh/witboost.mesh.provisioning.outputport.cdp.private.hdfs"` | Image repository |
 | image.tag | string | `"to-be-replaced"` | Image tag |
+| krb5Override | string | `nil` | This configuration allows you to override the krb5.conf file |
 | labels | object | `{}` | Allows you to specify common labels |
 | livenessProbe | object | `{"httpGet":{"path":"/actuator/health/liveness","port":8888}}` | liveness probe spec |
 | otel | object | `{"collectorUrl":"http://localhost:5555","enabled":"false","metricExporter":"otlp","serviceName":"cdp-private-hdfs-specific-provisioner","tracesExporter":"otlp"}` | otel configuration |

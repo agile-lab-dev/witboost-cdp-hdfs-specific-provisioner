@@ -58,3 +58,6 @@ labels: {}
 
 # -- This configuration allows you to override the application.yml file
 configOverride:
+
+# -- This configuration allows you to override the krb5.conf file
+krb5Override:

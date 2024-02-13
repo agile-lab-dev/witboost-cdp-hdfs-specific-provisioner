@@ -75,6 +75,11 @@ spec:
                 secretKeyRef:
                   name: witboost-addons-secrets
                   key: LDAP_BIND_PASSWORD
+            - name: RANGER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: witboost-addons-secrets
+                  key: RANGER_PASSWORD
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}

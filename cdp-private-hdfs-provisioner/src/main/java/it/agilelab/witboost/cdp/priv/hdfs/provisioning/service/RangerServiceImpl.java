@@ -35,7 +35,7 @@ public class RangerServiceImpl implements RangerService {
         try {
             return right(Optional.of(rangerClient.getSecurityZone(zoneName)));
         } catch (RangerServiceException e) {
-            int statusCode = e.getStatus().getStatusCode();
+            int statusCode = e.getStatus() != null ? e.getStatus().getStatusCode() : 0;
             if (statusCode == 400 || statusCode == 404) return right(Optional.empty());
             String errorMessage =
                     String.format(

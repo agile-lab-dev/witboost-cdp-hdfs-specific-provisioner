@@ -47,7 +47,7 @@ public class HdfsServiceTest {
 
   @Test
   public void testCreateFolderShouldReturnOk() {
-    String path = "my/folder";
+    String path = "/my/folder";
     String res = """
             {"boolean": true}
              """;
@@ -63,7 +63,7 @@ public class HdfsServiceTest {
 
   @Test
   public void testCreateFolderShouldFail() {
-    String path = "my/folder";
+    String path = "/my/folder";
     String res = """
             {"boolean": false}
              """;
@@ -74,7 +74,7 @@ public class HdfsServiceTest {
             new FailedOperation(
                     Collections.singletonList(
                             new Problem(
-                                    "Failed to create the folder 'my/folder'. Please try again and if the issue persists contact the platform team")));
+                                    "Failed to create the folder '/my/folder'. Please try again and if the issue persists contact the platform team")));
 
     Either<FailedOperation, String> actualRes = hdfsService.createFolder(path);
 
@@ -84,11 +84,11 @@ public class HdfsServiceTest {
 
   @Test
   public void testCreateFolderShouldReturnBadStatusCode() {
-    String path = "my/folder";
+    String path = "/my/folder";
     server
             .expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=MKDIRS"))
             .andRespond(withServerError());
-    var expectedDesc = "Failed to create the folder 'my/folder'. Please try again and if the issue persists contact the platform team. Details: ";
+    var expectedDesc = "Failed to create the folder '/my/folder'. Please try again and if the issue persists contact the platform team. Details: ";
 
     Either<FailedOperation, String> actualRes = hdfsService.createFolder(path);
 
@@ -102,7 +102,7 @@ public class HdfsServiceTest {
 
   @Test
   public void testDeleteFolderShouldReturnOk() {
-    String path = "my/folder";
+    String path = "/my/folder";
     String res = """
             {"boolean": true}
              """;
@@ -118,7 +118,7 @@ public class HdfsServiceTest {
 
   @Test
   public void testDeleteFolderAlreadyDeleted() {
-    String path = "my/folder";
+    String path = "/my/folder";
     String res = """
             {"boolean": false}
              """;
@@ -134,12 +134,12 @@ public class HdfsServiceTest {
 
   @Test
   public void testDeleteFolderShouldReturnBadStatusCode() {
-    String path = "my/folder";
+    String path = "/my/folder";
     server
             .expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=DELETE&recursive=true"))
             .andRespond(withServerError());
     var expectedDesc =
-            "Failed to delete the folder 'my/folder'. Please try again and if the issue persists contact the platform team. Details: ";
+            "Failed to delete the folder '/my/folder'. Please try again and if the issue persists contact the platform team. Details: ";
 
     Either<FailedOperation, String> actualRes = hdfsService.deleteFolder(path);
 

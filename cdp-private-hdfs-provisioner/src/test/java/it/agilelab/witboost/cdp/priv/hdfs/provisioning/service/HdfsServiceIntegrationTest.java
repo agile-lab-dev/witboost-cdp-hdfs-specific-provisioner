@@ -48,15 +48,15 @@ public class HdfsServiceIntegrationTest {
         HdfsService hdfsService =
                 new HdfsServiceImpl(restTemplateBuilder.build(), integrationHdfsConfig);
 
-        var resCreation = hdfsService.createFolder("myfolder");
+        var resCreation = hdfsService.createFolder("/myfolder");
 
         assertThat(resCreation.isRight()).isTrue();
-        assertEquals("myfolder", resCreation.get());
+        assertEquals("/myfolder", resCreation.get());
 
-        var resDeletion = hdfsService.deleteFolder("myfolder");
+        var resDeletion = hdfsService.deleteFolder("/myfolder");
 
         assertThat(resDeletion.isRight()).isTrue();
-        assertEquals("myfolder", resDeletion.get());
+        assertEquals("/myfolder", resDeletion.get());
     }
 
     @Test
@@ -69,9 +69,9 @@ public class HdfsServiceIntegrationTest {
         HdfsService hdfsService =
                 new HdfsServiceImpl(restTemplateBuilder.build(), integrationHdfsConfig);
 
-        var resDeletion = hdfsService.deleteFolder("notexisting");
+        var resDeletion = hdfsService.deleteFolder("/notexisting");
 
         assertThat(resDeletion.isRight()).isTrue();
-        assertEquals("notexisting", resDeletion.get());
+        assertEquals("/notexisting", resDeletion.get());
     }
 }

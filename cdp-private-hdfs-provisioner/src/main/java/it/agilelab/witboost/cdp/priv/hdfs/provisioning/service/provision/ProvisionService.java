@@ -1,6 +1,7 @@
 package it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.provision;
 
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ProvisioningRequest;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ProvisioningStatus;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ValidationResult;
 
 /***
@@ -15,4 +16,20 @@ public interface ProvisionService {
      * @return the outcome of the validation
      */
     ValidationResult validate(ProvisioningRequest provisioningRequest);
+
+    /**
+     * Provision the component present in the request
+     *
+     * @param provisioningRequest the request
+     * @return the outcome of the provision
+     */
+    ProvisioningStatus provision(ProvisioningRequest provisioningRequest);
+
+    /**
+     * Unprovision the component present in the request
+     *
+     * @param provisioningRequest the request
+     * @return the outcome of the unprovision
+     */
+    ProvisioningStatus unprovision(ProvisioningRequest provisioningRequest);
 }
