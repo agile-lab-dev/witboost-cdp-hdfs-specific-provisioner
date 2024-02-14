@@ -61,3 +61,8 @@ configOverride:
 
 # -- This configuration allows you to override the krb5.conf file
 krb5Override:
+
+# Custom Root CA configuration
+customRootCA:
+  # -- If this option is enabled, the chart will load the custom CA from a secret with key `cdp-private-hdfs-custom-ca`. The CA is expected to be in a format compatible with `keytool` utility (PEM works fine).
+  enabled: false

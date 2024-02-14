@@ -28,11 +28,21 @@ spec:
             secretName: witboost-addons-secrets
             items:
               - key: cdp-private-hdfs-keytab
-                path: cdp/private/hdfs/keytab
+                path: keytab
         - name: config
           configMap:
             name: {{ template "cdp-private-hdfs-sp.fullname" . }}-config
             defaultMode: 420
+        - name: shared-volume
+          emptyDir: {}
+        {{- if .Values.customRootCA.enabled }}
+        - name: custom-ca-volume
+          secret:
+            secretName: witboost-addons-secrets
+            items:
+              - key: cdp-private-hdfs-custom-ca
+                path: custom_root_ca.crt
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.registry }}:{{ .Values.image.tag }}
@@ -84,8 +94,57 @@ spec:
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
           volumeMounts:
-            - name: keytab-volume
-              mountPath: /opt/docker/etc/security
+            - name: shared-volume
+              mountPath: /opt/docker/etc/security/cdp/private/hdfs/keytab
+              subPath: keytab
               readOnly: true
             - name: config
               mountPath: /opt/docker/etc/configs
+            {{- if .Values.customRootCA.enabled }}
+            - name: shared-volume
+              mountPath: /opt/java/openjdk/lib/security/cacerts
+              subPath: cacerts
+              readOnly: true
+            {{- end }}
+      initContainers:
+        - name: {{ .Chart.Name }}-init-keytab
+          image: {{ .Values.image.registry }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.securityContext }}
+          securityContext: {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          command: ['sh', '-c']
+          args:
+            - |
+              cat /security/keytab | base64 -d > /work/keytab
+          volumeMounts:
+            - name: keytab-volume
+              mountPath: /security
+              readOnly: true
+            - name: shared-volume
+              mountPath: /work
+        {{- if .Values.customRootCA.enabled }}
+        - name: {{ .Chart.Name }}-init-custom-ca
+          image: {{ .Values.image.registry }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.securityContext }}
+          securityContext: {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          command: ['sh', '-c']
+          args:
+            - |
+              cp $JAVA_HOME/lib/security/cacerts /work/cacerts
+              keytool -import -noprompt -alias customRootCA -keystore /work/cacerts -file /certificates/custom_root_ca.crt -storepass changeit
+          volumeMounts:
+            - name: custom-ca-volume
+              mountPath: /certificates
+              readOnly: true
+            - name: shared-volume
+              mountPath: /work
+        {{- end }}

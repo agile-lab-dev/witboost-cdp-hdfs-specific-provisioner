@@ -21,6 +21,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | configOverride | string | `nil` | This configuration allows you to override the application.yml file |
+| customRootCA.enabled | bool | `false` | If this option is enabled, the chart will load the custom CA from a secret with key `cdp-private-hdfs-custom-ca`. The CA is expected to be in a format compatible with `keytool` utility (PEM works fine). |
 | dockerRegistrySecretName | string | `"regcred"` | Docker Registry Secret name used to access a private repo |
 | extraEnvVars | list | `[]` | define extra variables to add to the container(s) e.g: extraEnvVars:   - name: FOO     value: "10" |
 | image.pullPolicy | string | `"Always"` | The imagePullPolicy for a container and the tag of the image affect when the kubelet attempts to pull (download) the specified image. |

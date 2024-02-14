@@ -184,6 +184,8 @@ Application configuration is handled using the features provided by Spring Boot.
 
 The chart provides a `krb5.conf` that needs to be configured properly. This file will be mounted automatically in `/opt/docker/etc/configs/` and the application will load it using the system property `java.security.krb5.conf`.
 
+The chart loads the `keytab` from a secret with key `cdp-private-hdfs-keytab`. The keytab is expected to be base64 encoded (the chart takes care of decoding it).
+
 ### Hdfs configuration
 
 | Configuration | Description                       | 
@@ -214,6 +216,10 @@ The chart provides a `krb5.conf` that needs to be configured properly. This file
 | mapping.ldap.groupSearchFilter  | Ldap filter for group search                                                                                                                                                      |
 | mapping.ldap.userAttributeName  | Ldap attribute name for user Id                                                                                                                                                   |
 | mapping.ldap.groupAttributeName | Ldap attribute name for group Id                                                                                                                                                  |
+
+### Custom Root CA
+
+The chart provides the option `customCA.enabled` to add a custom Root Certification Authority to the JVM truststore. If this option is enabled, the chart will load the custom CA from a secret with key `cdp-private-hdfs-custom-ca`. The CA is expected to be in a format compatible with `keytool` utility (PEM works fine).
 
 ## Deploying
 
