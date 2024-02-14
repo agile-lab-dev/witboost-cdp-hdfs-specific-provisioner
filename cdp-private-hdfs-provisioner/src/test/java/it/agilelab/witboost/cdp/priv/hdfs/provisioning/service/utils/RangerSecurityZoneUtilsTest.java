@@ -21,11 +21,10 @@ public class RangerSecurityZoneUtilsTest {
         expectedRes.setName("zone_name");
         expectedRes.setAdminUsers(List.of(deployUser));
         expectedRes.setAuditUsers(List.of(deployUser));
-        expectedRes.setServices(
-                Map.of(
-                        "serviceName",
-                        new RangerSecurityZone.RangerSecurityZoneService(
-                                List.of((new HashMap<>(Map.of("path", List.of(path))))))));
+        expectedRes.setServices(Map.of(
+                "serviceName",
+                new RangerSecurityZone.RangerSecurityZoneService(
+                        List.of((new HashMap<>(Map.of("path", List.of(path))))))));
 
         var actualRes = RangerSecurityZoneUtils.securityZone(zoneName, serviceName, deployUser, path);
 
@@ -33,12 +32,9 @@ public class RangerSecurityZoneUtilsTest {
         assertEquals(expectedRes.getName(), actualRes.getName());
         assertEquals(expectedRes.getAdminUsers(), actualRes.getAdminUsers());
         assertEquals(expectedRes.getAuditUsers(), actualRes.getAuditUsers());
-        expectedRes
-                .getServices()
-                .forEach(
-                        (k, v) -> {
-                            assertEquals(v.getResources(), actualRes.getServices().get(k).getResources());
-                        });
+        expectedRes.getServices().forEach((k, v) -> {
+            assertEquals(v.getResources(), actualRes.getServices().get(k).getResources());
+        });
     }
 
     @Test
@@ -52,11 +48,10 @@ public class RangerSecurityZoneUtilsTest {
         existingSZ.setName("zone_name");
         existingSZ.setAdminUsers(List.of(deployUser));
         existingSZ.setAuditUsers(List.of(deployUser));
-        existingSZ.setServices(
-                Map.of(
-                        "serviceName",
-                        new RangerSecurityZone.RangerSecurityZoneService(
-                                List.of((new HashMap<>(Map.of("path", List.of(path1))))))));
+        existingSZ.setServices(Map.of(
+                "serviceName",
+                new RangerSecurityZone.RangerSecurityZoneService(
+                        List.of((new HashMap<>(Map.of("path", List.of(path1))))))));
 
         var actualRes = RangerSecurityZoneUtils.securityZone(existingSZ, serviceName, path2);
 
@@ -64,12 +59,8 @@ public class RangerSecurityZoneUtilsTest {
         assertEquals(existingSZ.getName(), actualRes.getName());
         assertEquals(existingSZ.getAdminUsers(), actualRes.getAdminUsers());
         assertEquals(existingSZ.getAuditUsers(), actualRes.getAuditUsers());
-        actualRes
-                .getServices()
-                .forEach(
-                        (k, v) -> {
-                            if (k.equals(serviceName))
-                                assertEquals(v.getResources(), List.of(Map.of("path", List.of(path1, path2))));
-                        });
+        actualRes.getServices().forEach((k, v) -> {
+            if (k.equals(serviceName)) assertEquals(v.getResources(), List.of(Map.of("path", List.of(path1, path2))));
+        });
     }
 }

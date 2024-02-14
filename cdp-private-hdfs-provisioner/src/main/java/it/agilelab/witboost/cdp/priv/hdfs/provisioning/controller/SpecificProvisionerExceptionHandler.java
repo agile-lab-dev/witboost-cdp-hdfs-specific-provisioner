@@ -27,21 +27,18 @@ public class SpecificProvisionerExceptionHandler {
 
     @ExceptionHandler({SpecificProvisionerValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected RequestValidationError handleValidationException(
-            SpecificProvisionerValidationException ex) {
-        return new RequestValidationError(
-                ex.getFailedOperation().problems().stream()
-                        .map(Problem::description)
-                        .collect(Collectors.toList()));
+    protected RequestValidationError handleValidationException(SpecificProvisionerValidationException ex) {
+        return new RequestValidationError(ex.getFailedOperation().problems().stream()
+                .map(Problem::description)
+                .collect(Collectors.toList()));
     }
 
     @ExceptionHandler({RuntimeException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected SystemError handleSystemError(RuntimeException ex) {
-        String errorMessage =
-                String.format(
-                        "An unexpected error occurred while processing the request. Please try again later. If the issue still persists, contact the platform team for assistance! Details: %s",
-                        ex.getMessage());
+        String errorMessage = String.format(
+                "An unexpected error occurred while processing the request. Please try again later. If the issue still persists, contact the platform team for assistance! Details: %s",
+                ex.getMessage());
         logger.error(errorMessage, ex);
         return new SystemError(errorMessage);
     }

@@ -31,14 +31,9 @@ public class ValidationServiceImpl implements ValidationService {
             ProvisioningRequest provisioningRequest) {
 
         if (!DescriptorKind.COMPONENT_DESCRIPTOR.equals(provisioningRequest.getDescriptorKind()))
-            return left(
-                    new FailedOperation(
-                            Collections.singletonList(
-                                    new Problem(
-                                            String.format(
-                                                    "The descriptorKind field is not valid. Expected: '%s', Actual: '%s'",
-                                                    DescriptorKind.COMPONENT_DESCRIPTOR,
-                                                    provisioningRequest.getDescriptorKind())))));
+            return left(new FailedOperation(Collections.singletonList(new Problem(String.format(
+                    "The descriptorKind field is not valid. Expected: '%s', Actual: '%s'",
+                    DescriptorKind.COMPONENT_DESCRIPTOR, provisioningRequest.getDescriptorKind())))));
 
         var eitherDescriptor = Parser.parseDescriptor(provisioningRequest.getDescriptor());
         if (eitherDescriptor.isLeft()) return left(eitherDescriptor.getLeft());
@@ -46,34 +41,23 @@ public class ValidationServiceImpl implements ValidationService {
 
         var componentId = descriptor.getComponentIdToProvision();
 
-        var optionalComponentToProvision =
-                descriptor.getDataProduct().getComponentToProvision(componentId);
+        var optionalComponentToProvision = descriptor.getDataProduct().getComponentToProvision(componentId);
         if (optionalComponentToProvision.isEmpty())
-            return left(
-                    new FailedOperation(
-                            Collections.singletonList(
-                                    new Problem(
-                                            String.format(
-                                                    "Component with ID %s not found in the Descriptor", componentId)))));
+            return left(new FailedOperation(Collections.singletonList(
+                    new Problem(String.format("Component with ID %s not found in the Descriptor", componentId)))));
         var componentToProvisionAsJson = optionalComponentToProvision.get();
 
-        var optionalComponentKindToProvision =
-                descriptor.getDataProduct().getComponentKindToProvision(componentId);
+        var optionalComponentKindToProvision = descriptor.getDataProduct().getComponentKindToProvision(componentId);
         if (optionalComponentKindToProvision.isEmpty())
-            return left(
-                    new FailedOperation(
-                            Collections.singletonList(
-                                    new Problem(
-                                            String.format(
-                                                    "Component Kind not found for the component with ID %s", componentId)))));
+            return left(new FailedOperation(Collections.singletonList(
+                    new Problem(String.format("Component Kind not found for the component with ID %s", componentId)))));
         var componentKindToProvision = optionalComponentKindToProvision.get();
 
         Component<? extends Specific> componentToProvision;
         switch (componentKindToProvision) {
             case STORAGE_KIND:
                 var storageClass = kindToSpecificClass.get(STORAGE_KIND);
-                var eitherStorageToProvision =
-                        Parser.parseComponent(componentToProvisionAsJson, storageClass);
+                var eitherStorageToProvision = Parser.parseComponent(componentToProvisionAsJson, storageClass);
                 if (eitherStorageToProvision.isLeft()) return left(eitherStorageToProvision.getLeft());
                 componentToProvision = eitherStorageToProvision.get();
                 var storageAreaValidation = StorageAreaValidation.validate(componentToProvision);
@@ -81,28 +65,19 @@ public class ValidationServiceImpl implements ValidationService {
                 break;
             case OUTPUTPORT_KIND:
                 var outputPortClass = kindToSpecificClass.get(OUTPUTPORT_KIND);
-                var eitherOutputPortToProvision =
-                        Parser.parseComponent(componentToProvisionAsJson, outputPortClass);
-                if (eitherOutputPortToProvision.isLeft())
-                    return left(eitherOutputPortToProvision.getLeft());
+                var eitherOutputPortToProvision = Parser.parseComponent(componentToProvisionAsJson, outputPortClass);
+                if (eitherOutputPortToProvision.isLeft()) return left(eitherOutputPortToProvision.getLeft());
                 componentToProvision = eitherOutputPortToProvision.get();
                 var outputPortValidation =
                         OutputPortValidation.validate(descriptor.getDataProduct(), componentToProvision);
                 if (outputPortValidation.isLeft()) return left(outputPortValidation.getLeft());
                 break;
             default:
-                return left(
-                        new FailedOperation(
-                                Collections.singletonList(
-                                        new Problem(
-                                                String.format(
-                                                        "The kind '%s' of the component to provision is not supported by this Specific Provisioner",
-                                                        componentKindToProvision)))));
+                return left(new FailedOperation(Collections.singletonList(new Problem(String.format(
+                        "The kind '%s' of the component to provision is not supported by this Specific Provisioner",
+                        componentKindToProvision)))));
         }
-        return right(
-                new ProvisionRequest<>(
-                        descriptor.getDataProduct(),
-                        componentToProvision,
-                        provisioningRequest.getRemoveData()));
+        return right(new ProvisionRequest<>(
+                descriptor.getDataProduct(), componentToProvision, provisioningRequest.getRemoveData()));
     }
 }

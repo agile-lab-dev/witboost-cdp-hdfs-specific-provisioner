@@ -29,13 +29,14 @@ public class LdapServiceImpl implements LdapService {
 
     @Override
     public Either<FailedOperation, Option<CDPUser>> findUserByMail(String mail) {
-        FilterTemplate filterTemplate =
-                FilterTemplate.builder()
-                        .filter(ldapConfig.userSearchFilter())
-                        .parameter("mail", mail)
-                        .build();
-        SearchRequest searchRequest =
-                SearchRequest.builder().dn(ldapConfig.searchBaseDN()).filter(filterTemplate).build();
+        FilterTemplate filterTemplate = FilterTemplate.builder()
+                .filter(ldapConfig.userSearchFilter())
+                .parameter("mail", mail)
+                .build();
+        SearchRequest searchRequest = SearchRequest.builder()
+                .dn(ldapConfig.searchBaseDN())
+                .filter(filterTemplate)
+                .build();
         try {
             SearchResponse searchResponse = searchOperation.execute(searchRequest);
             LdapEntry entry = searchResponse.getEntry();
@@ -44,10 +45,9 @@ public class LdapServiceImpl implements LdapService {
             String ldapEmail = entry.getAttribute("mail").getStringValue();
             return right(Option.of(new CDPUser(userId, ldapEmail)));
         } catch (LdapException e) {
-            String errorMessage =
-                    String.format(
-                            "An error occurred while searching for the user '%s' on LDAP. Please try again and if the error persists contact the platform team. Details: %s",
-                            mail, e.getMessage());
+            String errorMessage = String.format(
+                    "An error occurred while searching for the user '%s' on LDAP. Please try again and if the error persists contact the platform team. Details: %s",
+                    mail, e.getMessage());
             logger.error(errorMessage, e);
             return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage, e))));
         }
@@ -55,13 +55,14 @@ public class LdapServiceImpl implements LdapService {
 
     @Override
     public Either<FailedOperation, Option<CDPGroup>> findGroupByName(String name) {
-        FilterTemplate filterTemplate =
-                FilterTemplate.builder()
-                        .filter(ldapConfig.groupSearchFilter())
-                        .parameter("group", name)
-                        .build();
-        SearchRequest searchRequest =
-                SearchRequest.builder().dn(ldapConfig.searchBaseDN()).filter(filterTemplate).build();
+        FilterTemplate filterTemplate = FilterTemplate.builder()
+                .filter(ldapConfig.groupSearchFilter())
+                .parameter("group", name)
+                .build();
+        SearchRequest searchRequest = SearchRequest.builder()
+                .dn(ldapConfig.searchBaseDN())
+                .filter(filterTemplate)
+                .build();
         try {
             SearchResponse searchResponse = searchOperation.execute(searchRequest);
             LdapEntry entry = searchResponse.getEntry();
@@ -69,10 +70,9 @@ public class LdapServiceImpl implements LdapService {
             String group = entry.getAttribute(ldapConfig.groupAttributeName()).getStringValue();
             return right(Option.of(new CDPGroup(group)));
         } catch (LdapException e) {
-            String errorMessage =
-                    String.format(
-                            "An error occurred while searching for the group '%s' on LDAP. Please try again and if the error persists contact the platform team. Details: %s",
-                            name, e.getMessage());
+            String errorMessage = String.format(
+                    "An error occurred while searching for the group '%s' on LDAP. Please try again and if the error persists contact the platform team. Details: %s",
+                    name, e.getMessage());
             logger.error(errorMessage, e);
             return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage, e))));
         }

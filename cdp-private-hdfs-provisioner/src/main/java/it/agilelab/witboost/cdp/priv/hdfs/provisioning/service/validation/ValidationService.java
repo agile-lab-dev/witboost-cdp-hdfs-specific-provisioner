@@ -14,6 +14,5 @@ public interface ValidationService {
      * @param provisioningRequest request to be validated
      * @return a ProvisionRequest object or the error encountered
      */
-    Either<FailedOperation, ProvisionRequest<? extends Specific>> validate(
-            ProvisioningRequest provisioningRequest);
+    Either<FailedOperation, ProvisionRequest<? extends Specific>> validate(ProvisioningRequest provisioningRequest);
 }

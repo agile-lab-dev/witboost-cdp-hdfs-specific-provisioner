@@ -44,22 +44,17 @@ public class HdfsServiceImpl implements HdfsService {
     public Either<FailedOperation, String> createFolder(String path) {
         try {
             ResponseEntity<HdfsResult> response =
-                    restTemplate.exchange(
-                            buildCreateUrl(path), HttpMethod.PUT, HttpEntity.EMPTY, HdfsResult.class);
+                    restTemplate.exchange(buildCreateUrl(path), HttpMethod.PUT, HttpEntity.EMPTY, HdfsResult.class);
             HdfsResult hdfsResult = response.getBody();
             if (hdfsResult != null && hdfsResult.isOutcome()) {
                 return right(path);
             }
-            return left(
-                    new FailedOperation(
-                            Collections.singletonList(
-                                    new Problem(getFailedMessage("create", path, Optional.empty())))));
+            return left(new FailedOperation(
+                    Collections.singletonList(new Problem(getFailedMessage("create", path, Optional.empty())))));
         } catch (RestClientResponseException rcre) {
             logger.error("Error in createFolder", rcre);
-            return left(
-                    new FailedOperation(
-                            Collections.singletonList(
-                                    new Problem(getFailedMessage("create", path, Optional.of(rcre)), rcre))));
+            return left(new FailedOperation(
+                    Collections.singletonList(new Problem(getFailedMessage("create", path, Optional.of(rcre)), rcre))));
         }
     }
 
@@ -67,23 +62,18 @@ public class HdfsServiceImpl implements HdfsService {
     public Either<FailedOperation, String> deleteFolder(String path) {
         try {
             ResponseEntity<HdfsResult> response =
-                    restTemplate.exchange(
-                            buildDeleteUrl(path), HttpMethod.DELETE, HttpEntity.EMPTY, HdfsResult.class);
+                    restTemplate.exchange(buildDeleteUrl(path), HttpMethod.DELETE, HttpEntity.EMPTY, HdfsResult.class);
             HdfsResult hdfsResult = response.getBody();
             // if the folder doesn't exist (maybe is already deleted), outcome is false, so it's ok for us
             if (hdfsResult != null) {
                 return right(path);
             }
-            return left(
-                    new FailedOperation(
-                            Collections.singletonList(
-                                    new Problem(getFailedMessage("delete", path, Optional.empty())))));
+            return left(new FailedOperation(
+                    Collections.singletonList(new Problem(getFailedMessage("delete", path, Optional.empty())))));
         } catch (RestClientResponseException rcre) {
             logger.error("Error in deleteFolder", rcre);
-            return left(
-                    new FailedOperation(
-                            Collections.singletonList(
-                                    new Problem(getFailedMessage("delete", path, Optional.of(rcre)), rcre))));
+            return left(new FailedOperation(
+                    Collections.singletonList(new Problem(getFailedMessage("delete", path, Optional.of(rcre)), rcre))));
         }
     }
 
@@ -91,8 +81,7 @@ public class HdfsServiceImpl implements HdfsService {
         String url = "/webhdfs/v1{path}";
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("path", path);
-        UriComponentsBuilder builder =
-                UriComponentsBuilder.fromUriString(url).queryParam("op", "MKDIRS");
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url).queryParam("op", "MKDIRS");
         return builder.buildAndExpand(urlParams).toString();
     }
 
@@ -100,10 +89,9 @@ public class HdfsServiceImpl implements HdfsService {
         String url = "/webhdfs/v1{path}";
         Map<String, String> urlParams = new HashMap<>();
         urlParams.put("path", path);
-        UriComponentsBuilder builder =
-                UriComponentsBuilder.fromUriString(url)
-                        .queryParam("op", "DELETE")
-                        .queryParam("recursive", "true");
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+                .queryParam("op", "DELETE")
+                .queryParam("recursive", "true");
         return builder.buildAndExpand(urlParams).toString();
     }
 

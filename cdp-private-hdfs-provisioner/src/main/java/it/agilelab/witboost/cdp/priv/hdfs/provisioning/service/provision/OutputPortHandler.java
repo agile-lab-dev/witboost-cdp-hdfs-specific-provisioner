@@ -30,8 +30,7 @@ public class OutputPortHandler extends BaseHandler {
         this.rangerService = rangerService;
     }
 
-    public <T extends Specific> Either<FailedOperation, String> create(
-            ProvisionRequest<T> provisionRequest) {
+    public <T extends Specific> Either<FailedOperation, String> create(ProvisionRequest<T> provisionRequest) {
         if (provisionRequest.component() instanceof OutputPort<T> op) {
             if (op.getDependsOn() != null && !op.getDependsOn().isEmpty()) {
                 String storageComponentId = op.getDependsOn().get(0);
@@ -52,30 +51,21 @@ public class OutputPortHandler extends BaseHandler {
         }
     }
 
-    public <T extends Specific> Either<FailedOperation, Void> destroy(
-            ProvisionRequest<T> provisionRequest) {
+    public <T extends Specific> Either<FailedOperation, Void> destroy(ProvisionRequest<T> provisionRequest) {
         if (provisionRequest.component() instanceof OutputPort<T> op) {
             if (op.getDependsOn() != null && !op.getDependsOn().isEmpty()) {
                 String storageComponentId = op.getDependsOn().get(0);
-                return buildUserRolePrefix(storageComponentId)
-                        .flatMap(
-                                uRP -> {
-                                    String userRoleName = generateUserRoleName(uRP);
-                                    return rangerService
-                                            .findRoleByName(userRoleName)
-                                            .flatMap(
-                                                    optR ->
-                                                            Option.ofOptional(optR)
-                                                                    .fold(
-                                                                            () -> right(null),
-                                                                            userRole ->
-                                                                                    rangerService.updateRole(
-                                                                                            rangerRole(
-                                                                                                    userRole,
-                                                                                                    Collections.emptyList(),
-                                                                                                    Collections.emptyList()))))
-                                            .map(v -> null);
-                                });
+                return buildUserRolePrefix(storageComponentId).flatMap(uRP -> {
+                    String userRoleName = generateUserRoleName(uRP);
+                    return rangerService
+                            .findRoleByName(userRoleName)
+                            .flatMap(optR -> Option.ofOptional(optR)
+                                    .fold(
+                                            () -> right(null),
+                                            userRole -> rangerService.updateRole(rangerRole(
+                                                    userRole, Collections.emptyList(), Collections.emptyList()))))
+                            .map(v -> null);
+                });
             } else {
                 return left(missingDependentStorageArea());
             }
@@ -85,8 +75,7 @@ public class OutputPortHandler extends BaseHandler {
     }
 
     private FailedOperation unknownPrefixPath(String storageComponentId) {
-        String errorMessage =
-                String.format("prefixPath not found for the component %s", storageComponentId);
+        String errorMessage = String.format("prefixPath not found for the component %s", storageComponentId);
         logger.error(errorMessage);
         return new FailedOperation(List.of(new Problem(errorMessage)));
     }

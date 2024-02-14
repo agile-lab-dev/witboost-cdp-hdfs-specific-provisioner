@@ -10,7 +10,6 @@ public class RangerClientBean {
 
     @Bean
     public RangerClient rangerClient(RangerConfig rangerConfig) {
-        return new RangerClient(
-                rangerConfig.baseUrl(), "simple", rangerConfig.username(), rangerConfig.password(), "");
+        return new RangerClient(rangerConfig.baseUrl(), "simple", rangerConfig.username(), rangerConfig.password(), "");
     }
 }

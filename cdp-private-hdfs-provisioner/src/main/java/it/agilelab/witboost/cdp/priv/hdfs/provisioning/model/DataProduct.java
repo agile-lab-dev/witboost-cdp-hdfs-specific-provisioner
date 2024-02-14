@@ -35,24 +35,16 @@ public class DataProduct {
     private List<JsonNode> components;
 
     public Option<JsonNode> getComponentToProvision(String componentId) {
-        return Option.ofOptional(
-                Optional.ofNullable(componentId)
-                        .flatMap(
-                                comp ->
-                                        components.stream()
-                                                .filter(c -> comp.equals(c.get("id").textValue()))
-                                                .findFirst()));
+        return Option.ofOptional(Optional.ofNullable(componentId).flatMap(comp -> components.stream()
+                .filter(c -> comp.equals(c.get("id").textValue()))
+                .findFirst()));
     }
 
     public Option<String> getComponentKindToProvision(String componentId) {
-        return Option.ofOptional(
-                Optional.ofNullable(componentId)
-                        .flatMap(
-                                comp ->
-                                        components.stream()
-                                                .filter(c -> comp.equals(c.get("id").textValue()))
-                                                .findFirst()
-                                                .flatMap(c -> Optional.ofNullable(c.get("kind")))
-                                                .map(JsonNode::textValue)));
+        return Option.ofOptional(Optional.ofNullable(componentId).flatMap(comp -> components.stream()
+                .filter(c -> comp.equals(c.get("id").textValue()))
+                .findFirst()
+                .flatMap(c -> Optional.ofNullable(c.get("kind")))
+                .map(JsonNode::textValue)));
     }
 }

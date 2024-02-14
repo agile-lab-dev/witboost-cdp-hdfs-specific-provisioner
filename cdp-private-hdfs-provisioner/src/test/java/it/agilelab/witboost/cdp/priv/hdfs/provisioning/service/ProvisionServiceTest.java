@@ -25,9 +25,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class ProvisionServiceTest {
 
-    @Mock private ValidationService validationService;
+    @Mock
+    private ValidationService validationService;
 
-    @InjectMocks private ProvisionServiceImpl provisionService;
+    @InjectMocks
+    private ProvisionServiceImpl provisionService;
 
     @Test
     public void validateOk() {
@@ -47,8 +49,7 @@ public class ProvisionServiceTest {
                 new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, "", false);
         String expectedError = "Validation error";
         when(validationService.validate(provisioningRequest))
-                .thenReturn(
-                        left(new FailedOperation(Collections.singletonList(new Problem(expectedError)))));
+                .thenReturn(left(new FailedOperation(Collections.singletonList(new Problem(expectedError)))));
 
         var actualRes = provisionService.validate(provisioningRequest);
 

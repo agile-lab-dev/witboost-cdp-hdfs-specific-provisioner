@@ -40,14 +40,10 @@ public class ParserTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+        });
     }
 
     @Test
@@ -57,8 +53,7 @@ public class ParserTest {
         assertTrue(eitherDescriptor.isRight());
         Descriptor descriptor = eitherDescriptor.get();
         String componentIdToProvision = "urn:dmb:cmp:healthcare:vaccinations:0:storage";
-        var optionalComponent =
-                descriptor.getDataProduct().getComponentToProvision(componentIdToProvision);
+        var optionalComponent = descriptor.getDataProduct().getComponentToProvision(componentIdToProvision);
         assertTrue(optionalComponent.isDefined());
         JsonNode component = optionalComponent.get();
 
@@ -74,8 +69,7 @@ public class ParserTest {
         assertTrue(eitherDescriptor.isRight());
         Descriptor descriptor = eitherDescriptor.get();
         String componentIdToProvision = "urn:dmb:cmp:healthcare:vaccinations:0:hdfs-output-port";
-        var optionalComponent =
-                descriptor.getDataProduct().getComponentToProvision(componentIdToProvision);
+        var optionalComponent = descriptor.getDataProduct().getComponentToProvision(componentIdToProvision);
         assertTrue(optionalComponent.isDefined());
         JsonNode component = optionalComponent.get();
 
@@ -93,13 +87,9 @@ public class ParserTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+        });
     }
 }

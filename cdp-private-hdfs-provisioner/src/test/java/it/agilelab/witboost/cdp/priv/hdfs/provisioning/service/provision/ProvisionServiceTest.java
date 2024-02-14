@@ -24,10 +24,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ProvisionServiceTest {
-    @Mock private ValidationService validationService;
-    @Mock private StorageAreaHandler storageAreaHandler;
-    @Mock private OutputPortHandler outputPortHandler;
-    @InjectMocks private ProvisionServiceImpl provisionService;
+    @Mock
+    private ValidationService validationService;
+
+    @Mock
+    private StorageAreaHandler storageAreaHandler;
+
+    @Mock
+    private OutputPortHandler outputPortHandler;
+
+    @InjectMocks
+    private ProvisionServiceImpl provisionService;
 
     @Test
     public void testValidateOk() {
@@ -59,10 +66,8 @@ public class ProvisionServiceTest {
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem("error")));
         when(validationService.validate(provisioningRequest)).thenReturn(left(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.provision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.provision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -73,14 +78,11 @@ public class ProvisionServiceTest {
         storageArea.setKind("unsupported");
         when(validationService.validate(provisioningRequest))
                 .thenReturn(right(new ProvisionRequest<>(null, storageArea, false)));
-        String expectedDesc =
-                "The kind 'unsupported' of the component is not supported by this Specific Provisioner";
+        String expectedDesc = "The kind 'unsupported' of the component is not supported by this Specific Provisioner";
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem(expectedDesc)));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.provision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.provision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -94,9 +96,8 @@ public class ProvisionServiceTest {
         String createdFolderPath = "folder";
         when(storageAreaHandler.create(provisionRequest)).thenReturn(right(createdFolderPath));
         var privateInfo = Map.of("path", createdFolderPath);
-        var expectedRes =
-                new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
-                        .info(new Info(JsonNodeFactory.instance.objectNode(), privateInfo));
+        var expectedRes = new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
+                .info(new Info(JsonNodeFactory.instance.objectNode(), privateInfo));
 
         var actualRes = provisionService.provision(provisioningRequest);
 
@@ -114,10 +115,8 @@ public class ProvisionServiceTest {
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem(expectedDesc)));
         when(storageAreaHandler.create(provisionRequest)).thenReturn(left(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.provision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.provision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -130,11 +129,9 @@ public class ProvisionServiceTest {
         when(validationService.validate(provisioningRequest)).thenReturn(right(provisionRequest));
         String folderPath = "folder";
         when(outputPortHandler.create(provisionRequest)).thenReturn(right(folderPath));
-        var publicInfo =
-                Map.of("path", Map.of("type", "string", "label", "HDFS Path", "value", folderPath));
-        var expectedRes =
-                new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
-                        .info(new Info(publicInfo, JsonNodeFactory.instance.objectNode()));
+        var publicInfo = Map.of("path", Map.of("type", "string", "label", "HDFS Path", "value", folderPath));
+        var expectedRes = new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
+                .info(new Info(publicInfo, JsonNodeFactory.instance.objectNode()));
 
         var actualRes = provisionService.provision(provisioningRequest);
 
@@ -152,10 +149,8 @@ public class ProvisionServiceTest {
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem(expectedDesc)));
         when(outputPortHandler.create(provisionRequest)).thenReturn(left(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.provision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.provision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -165,10 +160,8 @@ public class ProvisionServiceTest {
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem("error")));
         when(validationService.validate(provisioningRequest)).thenReturn(left(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.unprovision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.unprovision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -179,14 +172,11 @@ public class ProvisionServiceTest {
         storageArea.setKind("unsupported");
         when(validationService.validate(provisioningRequest))
                 .thenReturn(right(new ProvisionRequest<>(null, storageArea, false)));
-        String expectedDesc =
-                "The kind 'unsupported' of the component is not supported by this Specific Provisioner";
+        String expectedDesc = "The kind 'unsupported' of the component is not supported by this Specific Provisioner";
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem(expectedDesc)));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.unprovision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.unprovision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -216,10 +206,8 @@ public class ProvisionServiceTest {
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem(expectedDesc)));
         when(storageAreaHandler.destroy(provisionRequest)).thenReturn(left(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.unprovision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.unprovision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -249,10 +237,8 @@ public class ProvisionServiceTest {
         var failedOperation = new FailedOperation(Collections.singletonList(new Problem(expectedDesc)));
         when(outputPortHandler.destroy(provisionRequest)).thenReturn(left(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> provisionService.unprovision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class, () -> provisionService.unprovision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 }

@@ -22,9 +22,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class RangerServiceTest {
-    @Mock private RangerClient rangerClient;
+    @Mock
+    private RangerClient rangerClient;
 
-    @InjectMocks private RangerServiceImpl rangerService;
+    @InjectMocks
+    private RangerServiceImpl rangerService;
 
     private final String securityZoneName = "my_sz_name";
     private final long securityZoneId = 1;
@@ -78,8 +80,7 @@ public class RangerServiceTest {
     @Test
     public void testFindSecurityZoneByNameWithInternalError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(GET_ZONE_BY_NAME, response);
         when(rangerClient.getSecurityZone(securityZoneName)).thenThrow(ex);
@@ -90,15 +91,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -114,8 +111,7 @@ public class RangerServiceTest {
     @Test
     public void testCreateSecurityZoneWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(GET_ZONE_BY_NAME, response);
         when(rangerClient.createSecurityZone(rangerSecurityZone)).thenThrow(ex);
@@ -126,15 +122,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -151,11 +143,11 @@ public class RangerServiceTest {
     @Test
     public void testUpdateSecurityZoneWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(GET_ZONE_BY_NAME, response);
-        when(rangerClient.updateSecurityZone(securityZoneId, rangerSecurityZone)).thenThrow(ex);
+        when(rangerClient.updateSecurityZone(securityZoneId, rangerSecurityZone))
+                .thenThrow(ex);
         var expectedDesc =
                 "An error occurred while updating the security zone 'my_sz_name' on Ranger. Please try again and if the error persists contact the platform team. Details: ";
 
@@ -163,25 +155,19 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
     public void testFindPolicyByNameWithExistingPolicy() throws RangerServiceException {
-        var filter =
-                Map.of("serviceName", serviceName, "policyName", policyName, "zoneName", securityZoneName);
+        var filter = Map.of("serviceName", serviceName, "policyName", policyName, "zoneName", securityZoneName);
         when(rangerClient.findPolicies(filter)).thenReturn(Collections.singletonList(rangerPolicy));
 
-        var actualRes =
-                rangerService.findPolicyByName(serviceName, policyName, Optional.of(securityZoneName));
+        var actualRes = rangerService.findPolicyByName(serviceName, policyName, Optional.of(securityZoneName));
 
         assertTrue(actualRes.isRight());
         assertTrue(actualRes.get().isPresent());
@@ -202,12 +188,10 @@ public class RangerServiceTest {
 
     @Test
     public void testFindPolicyByNameWithNotExistingPolicy() throws RangerServiceException {
-        var filter =
-                Map.of("serviceName", serviceName, "policyName", policyName, "zoneName", securityZoneName);
+        var filter = Map.of("serviceName", serviceName, "policyName", policyName, "zoneName", securityZoneName);
         when(rangerClient.findPolicies(filter)).thenReturn(Collections.emptyList());
 
-        var actualRes =
-                rangerService.findPolicyByName(serviceName, policyName, Optional.of(securityZoneName));
+        var actualRes = rangerService.findPolicyByName(serviceName, policyName, Optional.of(securityZoneName));
 
         assertTrue(actualRes.isRight());
         assertTrue(actualRes.get().isEmpty());
@@ -215,31 +199,24 @@ public class RangerServiceTest {
 
     @Test
     public void testFindPolicyByNameWithInternalError() throws RangerServiceException {
-        var filter =
-                Map.of("serviceName", serviceName, "policyName", policyName, "zoneName", securityZoneName);
+        var filter = Map.of("serviceName", serviceName, "policyName", policyName, "zoneName", securityZoneName);
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(FIND_POLICIES, response);
         when(rangerClient.findPolicies(filter)).thenThrow(ex);
         var expectedDesc =
                 "An error occurred while searching for policy 'my_policy_name' on Ranger. Please try again and if the error persists contact the platform team. Details: ";
 
-        var actualRes =
-                rangerService.findPolicyByName(serviceName, policyName, Optional.of(securityZoneName));
+        var actualRes = rangerService.findPolicyByName(serviceName, policyName, Optional.of(securityZoneName));
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -255,8 +232,7 @@ public class RangerServiceTest {
     @Test
     public void testCreatePolicyWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(CREATE_POLICY, response);
         when(rangerClient.createPolicy(rangerPolicy)).thenThrow(ex);
@@ -267,15 +243,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -291,8 +263,7 @@ public class RangerServiceTest {
     @Test
     public void testUpdatePolicyWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(UPDATE_POLICY_BY_NAME, response);
         when(rangerClient.updatePolicy(rangerPolicy.getId(), rangerPolicy)).thenThrow(ex);
@@ -303,15 +274,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -326,8 +293,7 @@ public class RangerServiceTest {
     @Test
     public void testDeletePolicyWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(DELETE_POLICY_BY_NAME, response);
         doThrow(ex).when(rangerClient).deletePolicy(policyId);
@@ -338,15 +304,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -375,11 +337,11 @@ public class RangerServiceTest {
     @Test
     public void testFindRoleByNameWithInternalError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(FIND_ROLES, response);
-        when(rangerClient.findRoles(Collections.singletonMap("roleName", roleName))).thenThrow(ex);
+        when(rangerClient.findRoles(Collections.singletonMap("roleName", roleName)))
+                .thenThrow(ex);
         var expectedDesc =
                 "An error occurred while searching for role 'my_role_name' on Ranger. Please try again and if the error persists contact the platform team. Details: ";
 
@@ -387,15 +349,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -411,8 +369,7 @@ public class RangerServiceTest {
     @Test
     public void testCreateRoleWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(CREATE_ROLE, response);
         when(rangerClient.createRole("", rangerRole)).thenThrow(ex);
@@ -423,15 +380,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -447,8 +400,7 @@ public class RangerServiceTest {
     @Test
     public void testUpdateRoleWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(UPDATE_ROLE_BY_ID, response);
         when(rangerClient.updateRole(rangerRole.getId(), rangerRole)).thenThrow(ex);
@@ -459,15 +411,11 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
@@ -482,8 +430,7 @@ public class RangerServiceTest {
     @Test
     public void testDeleteRoleWithError() throws RangerServiceException {
         ClientResponse response = mock(ClientResponse.class);
-        when(response.getStatus())
-                .thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        when(response.getStatus()).thenReturn(ClientResponse.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         when(response.getEntity(String.class)).thenReturn("");
         var ex = new RangerServiceException(DELETE_ROLE_BY_ID, response);
         doThrow(ex).when(rangerClient).deleteRole(roleId);
@@ -494,14 +441,10 @@ public class RangerServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 }

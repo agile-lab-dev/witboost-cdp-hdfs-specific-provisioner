@@ -19,7 +19,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 @WebMvcTest(SpecificProvisionerExceptionHandler.class)
 public class SpecificProvisionerExceptionHandlerTest {
 
-    @InjectMocks SpecificProvisionerExceptionHandler specificProvisionerExceptionHandler;
+    @InjectMocks
+    SpecificProvisionerExceptionHandler specificProvisionerExceptionHandler;
 
     @Test
     void testHandleConflictSystemError() {
@@ -40,8 +41,7 @@ public class SpecificProvisionerExceptionHandlerTest {
                         new FailedOperation(Collections.singletonList(new Problem(expectedError))));
 
         RequestValidationError requestValidationError =
-                specificProvisionerExceptionHandler.handleValidationException(
-                        specificProvisionerValidationException);
+                specificProvisionerExceptionHandler.handleValidationException(specificProvisionerValidationException);
 
         assertEquals(1, requestValidationError.getErrors().size());
         requestValidationError.getErrors().forEach(e -> assertEquals(expectedError, e));

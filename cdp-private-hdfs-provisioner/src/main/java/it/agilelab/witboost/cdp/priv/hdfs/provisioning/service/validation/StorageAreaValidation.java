@@ -20,23 +20,19 @@ public class StorageAreaValidation {
 
     public static Either<FailedOperation, Void> validate(Component<? extends Specific> component) {
         if (!(component instanceof StorageArea<? extends Specific>)) {
-            String errorMessage =
-                    String.format("The component %s is not of type StorageArea", component.getId());
+            String errorMessage = String.format("The component %s is not of type StorageArea", component.getId());
             logger.error(errorMessage);
             return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage))));
         }
         if (component.getSpecific() instanceof StorageSpecific ss) {
             if (ss.getPrefixPath() == null || ss.getPrefixPath().isBlank()) {
-                String errorMessage =
-                        String.format("Invalid 'prefixPath' for the component %s", component.getId());
+                String errorMessage = String.format("Invalid 'prefixPath' for the component %s", component.getId());
                 logger.error(errorMessage);
                 return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage))));
             }
         } else {
-            String errorMessage =
-                    String.format(
-                            "The specific section of the component %s is not of type StorageSpecific",
-                            component.getId());
+            String errorMessage = String.format(
+                    "The specific section of the component %s is not of type StorageSpecific", component.getId());
             logger.error(errorMessage);
             return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage))));
         }

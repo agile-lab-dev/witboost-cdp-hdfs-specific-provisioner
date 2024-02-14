@@ -35,45 +35,38 @@ public class ProvisionServiceImpl implements ProvisionService {
         return validationService
                 .validate(provisioningRequest)
                 .fold(
-                        l ->
-                                new ValidationResult(false)
-                                        .error(
-                                                new ValidationError(
-                                                        l.problems().stream()
-                                                                .map(Problem::description)
-                                                                .collect(Collectors.toList()))),
+                        l -> new ValidationResult(false)
+                                .error(new ValidationError(l.problems().stream()
+                                        .map(Problem::description)
+                                        .collect(Collectors.toList()))),
                         r -> new ValidationResult(true));
     }
 
     @Override
     public ProvisioningStatus provision(ProvisioningRequest provisioningRequest) {
         var eitherValidation = validationService.validate(provisioningRequest);
-        if (eitherValidation.isLeft())
-            throw new SpecificProvisionerValidationException(eitherValidation.getLeft());
+        if (eitherValidation.isLeft()) throw new SpecificProvisionerValidationException(eitherValidation.getLeft());
 
         var provisionRequest = eitherValidation.get();
         switch (provisionRequest.component().getKind()) {
-            case STORAGE_KIND:
-                {
-                    var eitherCreatedFolderPath = storageAreaHandler.create(provisionRequest);
-                    if (eitherCreatedFolderPath.isLeft())
-                        throw new SpecificProvisionerValidationException(eitherCreatedFolderPath.getLeft());
-                    String createdFolderPath = eitherCreatedFolderPath.get();
-                    var privateInfo = Map.of("path", createdFolderPath);
-                    return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
-                            .info(new Info(JsonNodeFactory.instance.objectNode(), privateInfo));
-                }
-            case OUTPUTPORT_KIND:
-                {
-                    var eitherFolderPath = outputPortHandler.create(provisionRequest);
-                    if (eitherFolderPath.isLeft())
-                        throw new SpecificProvisionerValidationException(eitherFolderPath.getLeft());
-                    String folderPath = eitherFolderPath.get();
-                    var publicInfo =
-                            Map.of("path", Map.of("type", "string", "label", "HDFS Path", "value", folderPath));
-                    return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
-                            .info(new Info(publicInfo, JsonNodeFactory.instance.objectNode()));
-                }
+            case STORAGE_KIND: {
+                var eitherCreatedFolderPath = storageAreaHandler.create(provisionRequest);
+                if (eitherCreatedFolderPath.isLeft())
+                    throw new SpecificProvisionerValidationException(eitherCreatedFolderPath.getLeft());
+                String createdFolderPath = eitherCreatedFolderPath.get();
+                var privateInfo = Map.of("path", createdFolderPath);
+                return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
+                        .info(new Info(JsonNodeFactory.instance.objectNode(), privateInfo));
+            }
+            case OUTPUTPORT_KIND: {
+                var eitherFolderPath = outputPortHandler.create(provisionRequest);
+                if (eitherFolderPath.isLeft())
+                    throw new SpecificProvisionerValidationException(eitherFolderPath.getLeft());
+                String folderPath = eitherFolderPath.get();
+                var publicInfo = Map.of("path", Map.of("type", "string", "label", "HDFS Path", "value", folderPath));
+                return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "")
+                        .info(new Info(publicInfo, JsonNodeFactory.instance.objectNode()));
+            }
             default:
                 throw new SpecificProvisionerValidationException(
                         unsupportedKind(provisionRequest.component().getKind()));
@@ -83,25 +76,20 @@ public class ProvisionServiceImpl implements ProvisionService {
     @Override
     public ProvisioningStatus unprovision(ProvisioningRequest provisioningRequest) {
         var eitherValidation = validationService.validate(provisioningRequest);
-        if (eitherValidation.isLeft())
-            throw new SpecificProvisionerValidationException(eitherValidation.getLeft());
+        if (eitherValidation.isLeft()) throw new SpecificProvisionerValidationException(eitherValidation.getLeft());
 
         var provisionRequest = eitherValidation.get();
         switch (provisionRequest.component().getKind()) {
-            case STORAGE_KIND:
-                {
-                    var eitherDestroy = storageAreaHandler.destroy(provisionRequest);
-                    if (eitherDestroy.isLeft())
-                        throw new SpecificProvisionerValidationException(eitherDestroy.getLeft());
-                    return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "");
-                }
-            case OUTPUTPORT_KIND:
-                {
-                    var eitherDestroy = outputPortHandler.destroy(provisionRequest);
-                    if (eitherDestroy.isLeft())
-                        throw new SpecificProvisionerValidationException(eitherDestroy.getLeft());
-                    return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "");
-                }
+            case STORAGE_KIND: {
+                var eitherDestroy = storageAreaHandler.destroy(provisionRequest);
+                if (eitherDestroy.isLeft()) throw new SpecificProvisionerValidationException(eitherDestroy.getLeft());
+                return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "");
+            }
+            case OUTPUTPORT_KIND: {
+                var eitherDestroy = outputPortHandler.destroy(provisionRequest);
+                if (eitherDestroy.isLeft()) throw new SpecificProvisionerValidationException(eitherDestroy.getLeft());
+                return new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "");
+            }
             default:
                 throw new SpecificProvisionerValidationException(
                         unsupportedKind(provisionRequest.component().getKind()));
@@ -109,11 +97,7 @@ public class ProvisionServiceImpl implements ProvisionService {
     }
 
     private FailedOperation unsupportedKind(String kind) {
-        return new FailedOperation(
-                Collections.singletonList(
-                        new Problem(
-                                String.format(
-                                        "The kind '%s' of the component is not supported by this Specific Provisioner",
-                                        kind))));
+        return new FailedOperation(Collections.singletonList(new Problem(
+                String.format("The kind '%s' of the component is not supported by this Specific Provisioner", kind))));
     }
 }

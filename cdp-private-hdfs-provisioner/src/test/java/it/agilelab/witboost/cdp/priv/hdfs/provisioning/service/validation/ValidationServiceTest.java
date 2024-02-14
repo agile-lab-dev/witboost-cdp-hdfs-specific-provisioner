@@ -47,14 +47,10 @@ public class ValidationServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -68,21 +64,16 @@ public class ValidationServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+        });
     }
 
     @Test
     public void testValidateMissingComponentIdToProvision() throws IOException {
         String ymlDescriptor =
-                ResourceUtils.getContentFromResource(
-                        "/descriptor_storage_missing_componentIdToProvision.yml");
+                ResourceUtils.getContentFromResource("/descriptor_storage_missing_componentIdToProvision.yml");
         ProvisioningRequest provisioningRequest =
                 new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
         String expectedDesc = "Component with ID null not found in the Descriptor";
@@ -91,20 +82,15 @@ public class ValidationServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
     public void testValidateMissingComponentToProvision() throws IOException {
-        String ymlDescriptor =
-                ResourceUtils.getContentFromResource("/descriptor_storage_missing_component.yml");
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_missing_component.yml");
         ProvisioningRequest provisioningRequest =
                 new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
         String expectedDesc =
@@ -114,20 +100,15 @@ public class ValidationServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
     public void testValidateMissingComponentKindToProvision() throws IOException {
-        String ymlDescriptor =
-                ResourceUtils.getContentFromResource("/descriptor_storage_missing_componentKind.yml");
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_missing_componentKind.yml");
         ProvisioningRequest provisioningRequest =
                 new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
         String expectedDesc =
@@ -137,20 +118,15 @@ public class ValidationServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
     public void testValidateWrongComponentKindToProvision() throws IOException {
-        String ymlDescriptor =
-                ResourceUtils.getContentFromResource("/descriptor_storage_wrong_componentKind.yml");
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_wrong_componentKind.yml");
         ProvisioningRequest provisioningRequest =
                 new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
         String expectedDesc =
@@ -160,13 +136,9 @@ public class ValidationServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 }

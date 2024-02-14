@@ -18,39 +18,31 @@ public abstract class BaseHandler {
     protected Either<FailedOperation, ComponentInfo> extractIdentifiers(String componentId) {
         var components = componentId.split(":");
         if (components.length != 7) {
-            String errorMessage =
-                    String.format(
-                            "Component id '%s' is not in the expected shape, cannot extract attributes",
-                            componentId);
+            String errorMessage = String.format(
+                    "Component id '%s' is not in the expected shape, cannot extract attributes", componentId);
             return left(new FailedOperation(List.of(new Problem(errorMessage))));
         }
         return right(new ComponentInfo(components[3], components[4], components[5], components[6]));
     }
 
-    protected Either<FailedOperation, String> buildHdfsFolderPath(
-            String componentId, String prefixPath) {
+    protected Either<FailedOperation, String> buildHdfsFolderPath(String componentId, String prefixPath) {
         var eitherIdentifiers = extractIdentifiers(componentId);
-        return eitherIdentifiers.map(
-                identifiers ->
-                        prefixPathWithTrailingSlash(prefixPath)
-                                .concat(
-                                        String.format(
-                                                "%s/data-products/%s/%s/%s",
-                                                identifiers.domain(),
-                                                identifiers.dataProductId(),
-                                                identifiers.dataProductMajorVersion(),
-                                                identifiers.componentId())));
+        return eitherIdentifiers.map(identifiers -> prefixPathWithTrailingSlash(prefixPath)
+                .concat(String.format(
+                        "%s/data-products/%s/%s/%s",
+                        identifiers.domain(),
+                        identifiers.dataProductId(),
+                        identifiers.dataProductMajorVersion(),
+                        identifiers.componentId())));
     }
 
     protected Either<FailedOperation, String> buildUserRolePrefix(String componentId) {
         var eitherIdentifiers = extractIdentifiers(componentId);
-        return eitherIdentifiers.map(
-                identifiers ->
-                        String.format(
-                                "%s_%s_%s_%s",
-                                identifiers.domain(),
-                                identifiers.dataProductId(),
-                                identifiers.dataProductMajorVersion(),
-                                identifiers.componentId()));
+        return eitherIdentifiers.map(identifiers -> String.format(
+                "%s_%s_%s_%s",
+                identifiers.domain(),
+                identifiers.dataProductId(),
+                identifiers.dataProductMajorVersion(),
+                identifiers.componentId()));
     }
 }

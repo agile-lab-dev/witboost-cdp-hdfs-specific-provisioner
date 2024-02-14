@@ -24,8 +24,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @ExtendWith(MockitoExtension.class)
 public class SpecificProvisionerControllerTest {
 
-    @Mock private ProvisionService provisionService;
-    @InjectMocks private SpecificProvisionerController specificProvisionerController;
+    @Mock
+    private ProvisionService provisionService;
+
+    @InjectMocks
+    private SpecificProvisionerController specificProvisionerController;
 
     @Test
     void testValidateOk() throws Exception {
@@ -35,8 +38,7 @@ public class SpecificProvisionerControllerTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(mockHttpServletRequest));
         when(provisionService.validate(provisioningRequest)).thenReturn(new ValidationResult(true));
 
-        ResponseEntity<ValidationResult> actualRes =
-                specificProvisionerController.validate(provisioningRequest);
+        ResponseEntity<ValidationResult> actualRes = specificProvisionerController.validate(provisioningRequest);
 
         assertEquals(HttpStatusCode.valueOf(200), actualRes.getStatusCode());
         assertTrue(Objects.requireNonNull(actualRes.getBody()).getValid());
@@ -50,12 +52,10 @@ public class SpecificProvisionerControllerTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(mockHttpServletRequest));
         String expectedError = "Validation error";
         when(provisionService.validate(provisioningRequest))
-                .thenReturn(
-                        new ValidationResult(false)
-                                .error(new ValidationError(Collections.singletonList(expectedError))));
+                .thenReturn(new ValidationResult(false)
+                        .error(new ValidationError(Collections.singletonList(expectedError))));
 
-        ResponseEntity<ValidationResult> actualRes =
-                specificProvisionerController.validate(provisioningRequest);
+        ResponseEntity<ValidationResult> actualRes = specificProvisionerController.validate(provisioningRequest);
 
         assertEquals(HttpStatusCode.valueOf(200), actualRes.getStatusCode());
         assertFalse(Objects.requireNonNull(actualRes.getBody()).getValid());
@@ -72,8 +72,7 @@ public class SpecificProvisionerControllerTest {
         when(provisionService.provision(provisioningRequest))
                 .thenReturn(new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, ""));
 
-        ResponseEntity<ProvisioningStatus> actualRes =
-                specificProvisionerController.provision(provisioningRequest);
+        ResponseEntity<ProvisioningStatus> actualRes = specificProvisionerController.provision(provisioningRequest);
 
         assertEquals(HttpStatusCode.valueOf(200), actualRes.getStatusCode());
         assertEquals(
@@ -91,10 +90,9 @@ public class SpecificProvisionerControllerTest {
         when(provisionService.provision(provisioningRequest))
                 .thenThrow(new SpecificProvisionerValidationException(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> specificProvisionerController.provision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class,
+                () -> specificProvisionerController.provision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 
@@ -107,8 +105,7 @@ public class SpecificProvisionerControllerTest {
         when(provisionService.unprovision(provisioningRequest))
                 .thenReturn(new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, ""));
 
-        ResponseEntity<ProvisioningStatus> actualRes =
-                specificProvisionerController.unprovision(provisioningRequest);
+        ResponseEntity<ProvisioningStatus> actualRes = specificProvisionerController.unprovision(provisioningRequest);
 
         assertEquals(HttpStatusCode.valueOf(200), actualRes.getStatusCode());
         assertEquals(
@@ -126,10 +123,9 @@ public class SpecificProvisionerControllerTest {
         when(provisionService.unprovision(provisioningRequest))
                 .thenThrow(new SpecificProvisionerValidationException(failedOperation));
 
-        var ex =
-                assertThrows(
-                        SpecificProvisionerValidationException.class,
-                        () -> specificProvisionerController.unprovision(provisioningRequest));
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class,
+                () -> specificProvisionerController.unprovision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
 }

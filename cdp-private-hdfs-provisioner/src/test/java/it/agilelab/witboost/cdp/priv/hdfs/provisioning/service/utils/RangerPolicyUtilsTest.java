@@ -16,24 +16,23 @@ public class RangerPolicyUtilsTest {
     private final String ownerRole = "owner";
     private final String userRole = "user";
     private final String hdfsServiceName = "cm_hdfs";
-    private final List<RangerPolicy.RangerPolicyItem> expectedRangerPolicyItems =
-            List.of(
-                    new RangerPolicy.RangerPolicyItem(
-                            List.of(
-                                    new RangerPolicy.RangerPolicyItemAccess("READ", true),
-                                    new RangerPolicy.RangerPolicyItemAccess("WRITE", true)),
-                            Collections.emptyList(),
-                            Collections.emptyList(),
-                            List.of(ownerRole),
-                            Collections.emptyList(),
-                            false),
-                    new RangerPolicy.RangerPolicyItem(
-                            List.of(new RangerPolicy.RangerPolicyItemAccess("READ", true)),
-                            Collections.emptyList(),
-                            Collections.emptyList(),
-                            List.of(userRole),
-                            Collections.emptyList(),
-                            false));
+    private final List<RangerPolicy.RangerPolicyItem> expectedRangerPolicyItems = List.of(
+            new RangerPolicy.RangerPolicyItem(
+                    List.of(
+                            new RangerPolicy.RangerPolicyItemAccess("READ", true),
+                            new RangerPolicy.RangerPolicyItemAccess("WRITE", true)),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    List.of(ownerRole),
+                    Collections.emptyList(),
+                    false),
+            new RangerPolicy.RangerPolicyItem(
+                    List.of(new RangerPolicy.RangerPolicyItemAccess("READ", true)),
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    List.of(userRole),
+                    Collections.emptyList(),
+                    false));
 
     @Test
     public void testPolicyName() {
@@ -48,8 +47,7 @@ public class RangerPolicyUtilsTest {
     @Test
     public void testNewRangerPolicy() {
         var actualRes =
-                RangerPolicyUtils.rangerPolicy(
-                        prefixName, zoneName, folderPath, ownerRole, userRole, hdfsServiceName);
+                RangerPolicyUtils.rangerPolicy(prefixName, zoneName, folderPath, ownerRole, userRole, hdfsServiceName);
 
         assertEquals(-1L, actualRes.getId());
         assertFields(actualRes);
@@ -77,15 +75,8 @@ public class RangerPolicyUtilsTest {
         RangerPolicy existingRangerPolicy = new RangerPolicy();
         existingRangerPolicy.setId(2L);
 
-        var actualRes =
-                RangerPolicyUtils.rangerPolicy(
-                        existingRangerPolicy,
-                        prefixName,
-                        zoneName,
-                        folderPath,
-                        ownerRole,
-                        userRole,
-                        hdfsServiceName);
+        var actualRes = RangerPolicyUtils.rangerPolicy(
+                existingRangerPolicy, prefixName, zoneName, folderPath, ownerRole, userRole, hdfsServiceName);
 
         assertEquals(2L, actualRes.getId());
         assertFields(actualRes);

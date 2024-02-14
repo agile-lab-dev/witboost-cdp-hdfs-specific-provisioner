@@ -18,8 +18,7 @@ public class RangerRoleUtils {
         return clean(String.format(USER_ROLE_NAME_PATTERN, rolePrefix));
     }
 
-    public static RangerRole rangerRole(
-            String roleName, List<String> users, List<String> groups, String deployUser) {
+    public static RangerRole rangerRole(String roleName, List<String> users, List<String> groups, String deployUser) {
         RangerRole rangerRole = new RangerRole();
         rangerRole.setId(0L);
         rangerRole.setIsEnabled(true);
@@ -27,28 +26,24 @@ public class RangerRoleUtils {
         rangerRole.setDescription("");
         rangerRole.setGroups(
                 groups.stream().map(g -> new RangerRole.RoleMember(g, false)).collect(Collectors.toList()));
-        rangerRole.setUsers(
-                Stream.concat(
-                                users.stream().map(u -> new RangerRole.RoleMember(u, false)),
-                                Stream.of(deployUser).map(ou -> new RangerRole.RoleMember(ou, true)))
-                        .collect(Collectors.toList()));
+        rangerRole.setUsers(Stream.concat(
+                        users.stream().map(u -> new RangerRole.RoleMember(u, false)),
+                        Stream.of(deployUser).map(ou -> new RangerRole.RoleMember(ou, true)))
+                .collect(Collectors.toList()));
         return rangerRole;
     }
 
-    public static RangerRole rangerRole(
-            RangerRole existingRole, List<String> users, List<String> groups) {
-        existingRole.setUsers(
-                Stream.concat(
-                                users.stream().map(u -> new RangerRole.RoleMember(u, false)),
-                                existingRole.getUsers().stream().filter(RangerRole.RoleMember::getIsAdmin))
-                        .distinct()
-                        .toList());
-        existingRole.setGroups(
-                Stream.concat(
-                                groups.stream().map(g -> new RangerRole.RoleMember(g, false)),
-                                existingRole.getGroups().stream().filter(RangerRole.RoleMember::getIsAdmin))
-                        .distinct()
-                        .toList());
+    public static RangerRole rangerRole(RangerRole existingRole, List<String> users, List<String> groups) {
+        existingRole.setUsers(Stream.concat(
+                        users.stream().map(u -> new RangerRole.RoleMember(u, false)),
+                        existingRole.getUsers().stream().filter(RangerRole.RoleMember::getIsAdmin))
+                .distinct()
+                .toList());
+        existingRole.setGroups(Stream.concat(
+                        groups.stream().map(g -> new RangerRole.RoleMember(g, false)),
+                        existingRole.getGroups().stream().filter(RangerRole.RoleMember::getIsAdmin))
+                .distinct()
+                .toList());
         return existingRole;
     }
 

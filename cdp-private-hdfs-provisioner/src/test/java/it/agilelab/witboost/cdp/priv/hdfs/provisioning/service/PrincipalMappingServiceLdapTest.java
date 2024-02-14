@@ -24,16 +24,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class PrincipalMappingServiceLdapTest {
 
-    @Mock private LdapService ldapService;
+    @Mock
+    private LdapService ldapService;
 
-    @InjectMocks private PrincipalMappingServiceLdap principalMappingService;
+    @InjectMocks
+    private PrincipalMappingServiceLdap principalMappingService;
 
     private final String witboostUserIdentity = "user:name.surname_example.com";
     private final String mail = "name.surname@example.com";
     private final String witboostGroupIdentity = "group:name";
     private final String groupName = "name";
-    private final Problem expectedProblem =
-            new Problem("Error", new LdapException(ResultCode.TIME_LIMIT_EXCEEDED, ""));
+    private final Problem expectedProblem = new Problem("Error", new LdapException(ResultCode.TIME_LIMIT_EXCEEDED, ""));
 
     @Test
     public void testMapExistingUser() {
@@ -58,15 +59,10 @@ public class PrincipalMappingServiceLdapTest {
         assertTrue(actualRes.containsKey(witboostUserIdentity));
         assertTrue(actualRes.get(witboostUserIdentity).isLeft());
         assertEquals(1, actualRes.get(witboostUserIdentity).getLeft().problems().size());
-        actualRes
-                .get(witboostUserIdentity)
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.get(witboostUserIdentity).getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -79,11 +75,7 @@ public class PrincipalMappingServiceLdapTest {
         assertTrue(actualRes.containsKey(witboostUserIdentity));
         assertTrue(actualRes.get(witboostUserIdentity).isLeft());
         assertEquals(1, actualRes.get(witboostUserIdentity).getLeft().problems().size());
-        actualRes
-                .get(witboostUserIdentity)
-                .getLeft()
-                .problems()
-                .forEach(p -> assertEquals(expectedProblem, p));
+        actualRes.get(witboostUserIdentity).getLeft().problems().forEach(p -> assertEquals(expectedProblem, p));
     }
 
     @Test
@@ -107,16 +99,12 @@ public class PrincipalMappingServiceLdapTest {
 
         assertTrue(actualRes.containsKey(witboostGroupIdentity));
         assertTrue(actualRes.get(witboostGroupIdentity).isLeft());
-        assertEquals(1, actualRes.get(witboostGroupIdentity).getLeft().problems().size());
-        actualRes
-                .get(witboostGroupIdentity)
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        assertEquals(
+                1, actualRes.get(witboostGroupIdentity).getLeft().problems().size());
+        actualRes.get(witboostGroupIdentity).getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -128,12 +116,9 @@ public class PrincipalMappingServiceLdapTest {
 
         assertTrue(actualRes.containsKey(witboostGroupIdentity));
         assertTrue(actualRes.get(witboostGroupIdentity).isLeft());
-        assertEquals(1, actualRes.get(witboostGroupIdentity).getLeft().problems().size());
-        actualRes
-                .get(witboostGroupIdentity)
-                .getLeft()
-                .problems()
-                .forEach(p -> assertEquals(expectedProblem, p));
+        assertEquals(
+                1, actualRes.get(witboostGroupIdentity).getLeft().problems().size());
+        actualRes.get(witboostGroupIdentity).getLeft().problems().forEach(p -> assertEquals(expectedProblem, p));
     }
 
     @Test
@@ -147,11 +132,7 @@ public class PrincipalMappingServiceLdapTest {
         assertTrue(actualRes.containsKey(unknownIdentity));
         assertTrue(actualRes.get(unknownIdentity).isLeft());
         assertEquals(1, actualRes.get(unknownIdentity).getLeft().problems().size());
-        actualRes
-                .get(unknownIdentity)
-                .getLeft()
-                .problems()
-                .forEach(p -> assertEquals(expectedUnknownProblem, p));
+        actualRes.get(unknownIdentity).getLeft().problems().forEach(p -> assertEquals(expectedUnknownProblem, p));
     }
 
     @Test
@@ -162,8 +143,7 @@ public class PrincipalMappingServiceLdapTest {
         when(ldapService.findUserByMail(mail)).thenReturn(right(Option.of(cdpUser)));
         when(ldapService.findGroupByName(groupName)).thenReturn(right(Option.of(cdpGroup)));
 
-        var actualRes =
-                principalMappingService.map(Set.of(witboostUserIdentity, witboostGroupIdentity));
+        var actualRes = principalMappingService.map(Set.of(witboostUserIdentity, witboostGroupIdentity));
 
         assertTrue(actualRes.containsKey(witboostUserIdentity));
         assertTrue(actualRes.get(witboostUserIdentity).isRight());
@@ -177,18 +157,13 @@ public class PrincipalMappingServiceLdapTest {
     public void testMapUserWithWrongMailFormat() {
         String wrongUserIdentity = "user:no-underscore.example.com";
         Problem expectedWrongProblem =
-                new Problem(
-                        "The subject user:no-underscore.example.com has not the expected format for a user");
+                new Problem("The subject user:no-underscore.example.com has not the expected format for a user");
 
         var actualRes = principalMappingService.map(Collections.singleton(wrongUserIdentity));
 
         assertTrue(actualRes.containsKey(wrongUserIdentity));
         assertTrue(actualRes.get(wrongUserIdentity).isLeft());
         assertEquals(1, actualRes.get(wrongUserIdentity).getLeft().problems().size());
-        actualRes
-                .get(wrongUserIdentity)
-                .getLeft()
-                .problems()
-                .forEach(p -> assertEquals(expectedWrongProblem, p));
+        actualRes.get(wrongUserIdentity).getLeft().problems().forEach(p -> assertEquals(expectedWrongProblem, p));
     }
 }

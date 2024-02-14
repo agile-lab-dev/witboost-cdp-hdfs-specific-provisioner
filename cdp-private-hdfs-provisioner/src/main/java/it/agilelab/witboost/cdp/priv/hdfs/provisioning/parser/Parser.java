@@ -28,30 +28,23 @@ public class Parser {
     public static Either<FailedOperation, Descriptor> parseDescriptor(String yamlDescriptor) {
         return Try.of(() -> om.readValue(yamlDescriptor, Descriptor.class))
                 .toEither()
-                .mapLeft(
-                        t -> {
-                            String errorMessage =
-                                    "Failed to deserialize the Yaml Descriptor. Details: " + t.getMessage();
-                            logger.error(errorMessage, t);
-                            return new FailedOperation(Collections.singletonList(new Problem(errorMessage, t)));
-                        });
+                .mapLeft(t -> {
+                    String errorMessage = "Failed to deserialize the Yaml Descriptor. Details: " + t.getMessage();
+                    logger.error(errorMessage, t);
+                    return new FailedOperation(Collections.singletonList(new Problem(errorMessage, t)));
+                });
     }
 
-    public static <U> Either<FailedOperation, Component<U>> parseComponent(
-            JsonNode node, Class<U> specificClass) {
-        return Try.of(
-                        () -> {
-                            JavaType javaType =
-                                    om.getTypeFactory().constructParametricType(Component.class, specificClass);
-                            return om.<Component<U>>readValue(node.toString(), javaType);
-                        })
+    public static <U> Either<FailedOperation, Component<U>> parseComponent(JsonNode node, Class<U> specificClass) {
+        return Try.of(() -> {
+                    JavaType javaType = om.getTypeFactory().constructParametricType(Component.class, specificClass);
+                    return om.<Component<U>>readValue(node.toString(), javaType);
+                })
                 .toEither()
-                .mapLeft(
-                        t -> {
-                            String errorMessage =
-                                    "Failed to deserialize the component. Details: " + t.getMessage();
-                            logger.error(errorMessage, t);
-                            return new FailedOperation(Collections.singletonList(new Problem(errorMessage, t)));
-                        });
+                .mapLeft(t -> {
+                    String errorMessage = "Failed to deserialize the component. Details: " + t.getMessage();
+                    logger.error(errorMessage, t);
+                    return new FailedOperation(Collections.singletonList(new Problem(errorMessage, t)));
+                });
     }
 }

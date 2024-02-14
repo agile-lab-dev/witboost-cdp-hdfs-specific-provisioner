@@ -9,18 +9,16 @@ import org.apache.ranger.plugin.model.RangerSecurityZone;
 
 public class RangerSecurityZoneUtils {
 
-    public static RangerSecurityZone securityZone(
-            String zoneName, String serviceName, String deployUser, String path) {
+    public static RangerSecurityZone securityZone(String zoneName, String serviceName, String deployUser, String path) {
         RangerSecurityZone rangerSecurityZone = new RangerSecurityZone();
         rangerSecurityZone.setId(-1L);
         rangerSecurityZone.setName(clean(zoneName));
         rangerSecurityZone.setAdminUsers(List.of(deployUser));
         rangerSecurityZone.setAuditUsers(List.of(deployUser));
-        rangerSecurityZone.setServices(
-                Map.of(
-                        serviceName,
-                        new RangerSecurityZone.RangerSecurityZoneService(
-                                List.of((new HashMap<>(Map.of("path", List.of(path))))))));
+        rangerSecurityZone.setServices(Map.of(
+                serviceName,
+                new RangerSecurityZone.RangerSecurityZoneService(
+                        List.of((new HashMap<>(Map.of("path", List.of(path))))))));
         return rangerSecurityZone;
     }
 
@@ -31,9 +29,8 @@ public class RangerSecurityZoneUtils {
                 serviceName,
                 new RangerSecurityZone.RangerSecurityZoneService(
                         List.of((new HashMap<>(Map.of("path", List.of(path)))))),
-                (v1, v2) ->
-                        new RangerSecurityZone.RangerSecurityZoneService(
-                                List.of((new HashMap<>(Map.of("path", merge(v1, path)))))));
+                (v1, v2) -> new RangerSecurityZone.RangerSecurityZoneService(
+                        List.of((new HashMap<>(Map.of("path", merge(v1, path)))))));
         existingRangerSecurityZone.setServices(existingServices);
         return existingRangerSecurityZone;
     }

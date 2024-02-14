@@ -18,11 +18,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class LdapServiceTest {
 
-    @Mock private SearchOperation searchOperation;
+    @Mock
+    private SearchOperation searchOperation;
 
-    @Mock private LdapConfig ldapConfig;
+    @Mock
+    private LdapConfig ldapConfig;
 
-    @InjectMocks private LdapServiceImpl ldapService;
+    @InjectMocks
+    private LdapServiceImpl ldapService;
 
     private final String mail = "user1@email.com";
     private final String cnGroup = "group1";
@@ -30,16 +33,20 @@ public class LdapServiceTest {
     @Test
     public void testFindUserByMailWithExistingUser() throws LdapException {
         String cnUser = "user1";
-        var searchResponse =
-                SearchResponse.builder()
-                        .entry(
-                                LdapEntry.builder()
-                                        .dn("")
-                                        .attributes(
-                                                LdapAttribute.builder().name("cn").values(cnUser).build(),
-                                                LdapAttribute.builder().name("mail").values(mail).build())
+        var searchResponse = SearchResponse.builder()
+                .entry(LdapEntry.builder()
+                        .dn("")
+                        .attributes(
+                                LdapAttribute.builder()
+                                        .name("cn")
+                                        .values(cnUser)
+                                        .build(),
+                                LdapAttribute.builder()
+                                        .name("mail")
+                                        .values(mail)
                                         .build())
-                        .build();
+                        .build())
+                .build();
         when(ldapConfig.userSearchFilter()).thenReturn("(mail={mail})");
         when(ldapConfig.userAttributeName()).thenReturn("cn");
         when(searchOperation.execute(any(SearchRequest.class))).thenReturn(searchResponse);
@@ -76,27 +83,24 @@ public class LdapServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 
     @Test
     public void testFindGroupByNameWithExistingGroup() throws LdapException {
-        var searchResponse =
-                SearchResponse.builder()
-                        .entry(
-                                LdapEntry.builder()
-                                        .dn("")
-                                        .attributes(LdapAttribute.builder().name("cn").values(cnGroup).build())
-                                        .build())
-                        .build();
+        var searchResponse = SearchResponse.builder()
+                .entry(LdapEntry.builder()
+                        .dn("")
+                        .attributes(LdapAttribute.builder()
+                                .name("cn")
+                                .values(cnGroup)
+                                .build())
+                        .build())
+                .build();
         when(ldapConfig.groupSearchFilter()).thenReturn("(&(objectClass=groupOfNames)(cn={group}))");
         when(ldapConfig.groupAttributeName()).thenReturn("cn");
         when(searchOperation.execute(any(SearchRequest.class))).thenReturn(searchResponse);
@@ -133,14 +137,10 @@ public class LdapServiceTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertTrue(p.description().startsWith(expectedDesc));
-                            assertTrue(p.cause().isPresent());
-                            assertEquals(ex, p.cause().get());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertTrue(p.description().startsWith(expectedDesc));
+            assertTrue(p.cause().isPresent());
+            assertEquals(ex, p.cause().get());
+        });
     }
 }

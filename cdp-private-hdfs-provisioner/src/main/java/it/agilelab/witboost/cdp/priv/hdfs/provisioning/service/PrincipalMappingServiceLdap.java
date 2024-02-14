@@ -29,24 +29,21 @@ public class PrincipalMappingServiceLdap implements PrincipalMappingService {
     @Override
     public Map<String, Either<FailedOperation, CDPIdentity>> map(Set<String> subjects) {
         return subjects.stream()
-                .map(
-                        s -> {
-                            if (isWitboostUser(s)) {
-                                var eitherMail = getMailFromWitboostIdentity(s);
-                                return eitherMail.fold(
-                                        l ->
-                                                new AbstractMap.SimpleEntry<String, Either<FailedOperation, CDPIdentity>>(
-                                                        s, left(l)),
-                                        mail -> new AbstractMap.SimpleEntry<>(s, mapUser(mail)));
-                            } else if (isWitboostGroup(s)) {
-                                String group = getGroup(s);
-                                return new AbstractMap.SimpleEntry<>(s, mapGroup(group));
-                            } else {
-                                return new AbstractMap.SimpleEntry<>(s, mapUnkownIdentity(s));
-                            }
-                        })
-                .collect(
-                        Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+                .map(s -> {
+                    if (isWitboostUser(s)) {
+                        var eitherMail = getMailFromWitboostIdentity(s);
+                        return eitherMail.fold(
+                                l -> new AbstractMap.SimpleEntry<String, Either<FailedOperation, CDPIdentity>>(
+                                        s, left(l)),
+                                mail -> new AbstractMap.SimpleEntry<>(s, mapUser(mail)));
+                    } else if (isWitboostGroup(s)) {
+                        String group = getGroup(s);
+                        return new AbstractMap.SimpleEntry<>(s, mapGroup(group));
+                    } else {
+                        return new AbstractMap.SimpleEntry<>(s, mapUnkownIdentity(s));
+                    }
+                })
+                .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
     }
 
     private Either<FailedOperation, String> getMailFromWitboostIdentity(String witboostIdentity) {
@@ -65,25 +62,15 @@ public class PrincipalMappingServiceLdap implements PrincipalMappingService {
     private Either<FailedOperation, CDPIdentity> mapGroup(String group) {
         return ldapService
                 .findGroupByName(group)
-                .flatMap(
-                        g ->
-                                g.toEither(
-                                        new FailedOperation(
-                                                Collections.singletonList(
-                                                        new Problem(
-                                                                String.format("The group %s was not found on LDAP", group))))));
+                .flatMap(g -> g.toEither(new FailedOperation(Collections.singletonList(
+                        new Problem(String.format("The group %s was not found on LDAP", group))))));
     }
 
     private Either<FailedOperation, CDPIdentity> mapUser(String mail) {
         return ldapService
                 .findUserByMail(mail)
-                .flatMap(
-                        u ->
-                                u.toEither(
-                                        new FailedOperation(
-                                                Collections.singletonList(
-                                                        new Problem(
-                                                                String.format("The user %s was not found on LDAP", mail))))));
+                .flatMap(u -> u.toEither(new FailedOperation(Collections.singletonList(
+                        new Problem(String.format("The user %s was not found on LDAP", mail))))));
     }
 
     private Either<FailedOperation, CDPIdentity> mapUnkownIdentity(String s) {

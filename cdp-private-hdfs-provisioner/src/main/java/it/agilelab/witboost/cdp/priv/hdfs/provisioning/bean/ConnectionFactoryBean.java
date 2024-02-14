@@ -12,17 +12,15 @@ public class ConnectionFactoryBean {
     @Bean(initMethod = "initialize", destroyMethod = "close")
     public ConnectionFactory connectionFactory(LdapConfig ldapConfig) {
         return PooledConnectionFactory.builder()
-                .config(
-                        ConnectionConfig.builder()
-                                .url(ldapConfig.url())
-                                .useStartTLS(ldapConfig.useTls())
-                                .responseTimeout(Duration.ofMillis(ldapConfig.timeout()))
-                                .connectionInitializers(
-                                        BindConnectionInitializer.builder()
-                                                .dn(ldapConfig.bindUsername())
-                                                .credential(ldapConfig.bindPassword())
-                                                .build())
+                .config(ConnectionConfig.builder()
+                        .url(ldapConfig.url())
+                        .useStartTLS(ldapConfig.useTls())
+                        .responseTimeout(Duration.ofMillis(ldapConfig.timeout()))
+                        .connectionInitializers(BindConnectionInitializer.builder()
+                                .dn(ldapConfig.bindUsername())
+                                .credential(ldapConfig.bindPassword())
                                 .build())
+                        .build())
                 .min(1)
                 .max(5)
                 .build();

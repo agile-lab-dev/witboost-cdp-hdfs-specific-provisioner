@@ -37,14 +37,10 @@ public class StorageAreaValidationTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -56,21 +52,16 @@ public class StorageAreaValidationTest {
         storageArea.setDescription("storage desc");
         storageArea.setKind("storage");
         storageArea.setSpecific(specific);
-        String expectedDesc =
-                "The specific section of the component my_id_storage is not of type StorageSpecific";
+        String expectedDesc = "The specific section of the component my_id_storage is not of type StorageSpecific";
 
         var actualRes = StorageAreaValidation.validate(storageArea);
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -88,13 +79,9 @@ public class StorageAreaValidationTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 }

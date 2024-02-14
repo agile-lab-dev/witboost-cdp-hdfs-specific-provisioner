@@ -67,14 +67,10 @@ public class OutputPortValidationTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -96,21 +92,16 @@ public class OutputPortValidationTest {
         nodes.add(outputPortNode);
         dataProduct.setComponents(nodes);
 
-        String expectedDesc =
-                "Expected exactly a dependency for the component my_id_outputport, found: 0";
+        String expectedDesc = "Expected exactly a dependency for the component my_id_outputport, found: 0";
 
         var actualRes = OutputPortValidation.validate(dataProduct, outputPort);
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -138,14 +129,10 @@ public class OutputPortValidationTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -182,13 +169,9 @@ public class OutputPortValidationTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 }

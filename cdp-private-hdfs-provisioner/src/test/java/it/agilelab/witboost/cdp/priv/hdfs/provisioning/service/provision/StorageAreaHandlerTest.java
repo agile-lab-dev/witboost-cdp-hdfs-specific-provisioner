@@ -27,12 +27,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class StorageAreaHandlerTest {
 
-    @Mock private PrincipalMappingService principalMappingService;
-    @Mock private RangerService rangerService;
-    @Mock private HdfsService hdfsService;
-    @Mock private RangerConfig rangerConfig;
+    @Mock
+    private PrincipalMappingService principalMappingService;
 
-    @InjectMocks private StorageAreaHandler storageAreaHandler;
+    @Mock
+    private RangerService rangerService;
+
+    @Mock
+    private HdfsService hdfsService;
+
+    @Mock
+    private RangerConfig rangerConfig;
+
+    @InjectMocks
+    private StorageAreaHandler storageAreaHandler;
 
     private final ProvisionRequest<StorageSpecific> provisionRequest;
     private final ProvisionRequest<StorageSpecific> provisionRequestRemoveData;
@@ -67,8 +75,7 @@ public class StorageAreaHandlerTest {
     @Test
     public void testCreateNotExistingEntitiesOk() {
         when(principalMappingService.map(Set.of("ownerUser", "ownerGroup")))
-                .thenReturn(
-                        Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
+                .thenReturn(Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
         when(rangerConfig.hdfsServiceName()).thenReturn("cm_hdfs");
         when(rangerService.findSecurityZoneByName(anyString())).thenReturn(right(Optional.empty()));
         when(rangerService.createSecurityZone(any())).thenReturn(right(new RangerSecurityZone()));
@@ -76,8 +83,7 @@ public class StorageAreaHandlerTest {
         when(rangerService.createRole(any())).thenReturn(right(new RangerRole()));
         when(rangerService.findRoleByName(anyString())).thenReturn(right(Optional.empty()));
         when(rangerService.createRole(any())).thenReturn(right(new RangerRole()));
-        when(rangerService.findPolicyByName(anyString(), anyString(), any()))
-                .thenReturn(right(Optional.empty()));
+        when(rangerService.findPolicyByName(anyString(), anyString(), any())).thenReturn(right(Optional.empty()));
         when(rangerService.createPolicy(any())).thenReturn(right(new RangerPolicy()));
         when(hdfsService.createFolder(anyString())).thenReturn(right(""));
         when(rangerConfig.username()).thenReturn("admin");
@@ -90,17 +96,14 @@ public class StorageAreaHandlerTest {
     @Test
     public void testCreateExistingEntitiesOk() {
         when(principalMappingService.map(Set.of("ownerUser", "ownerGroup")))
-                .thenReturn(
-                        Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
+                .thenReturn(Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
         when(rangerConfig.hdfsServiceName()).thenReturn("cm_hdfs");
         when(rangerService.findSecurityZoneByName(anyString()))
                 .thenReturn(right(Optional.of(new RangerSecurityZone())));
         when(rangerService.updateSecurityZone(any())).thenReturn(right(new RangerSecurityZone()));
-        when(rangerService.findRoleByName(anyString()))
-                .thenReturn(right(Optional.of(new RangerRole())));
+        when(rangerService.findRoleByName(anyString())).thenReturn(right(Optional.of(new RangerRole())));
         when(rangerService.updateRole(any())).thenReturn(right(new RangerRole()));
-        when(rangerService.findRoleByName(anyString()))
-                .thenReturn(right(Optional.of(new RangerRole())));
+        when(rangerService.findRoleByName(anyString())).thenReturn(right(Optional.of(new RangerRole())));
         when(rangerService.updateRole(any())).thenReturn(right(new RangerRole()));
         when(rangerService.findPolicyByName(anyString(), anyString(), any()))
                 .thenReturn(right(Optional.of(new RangerPolicy())));
@@ -115,8 +118,7 @@ public class StorageAreaHandlerTest {
     @Test
     public void testDestroyNotExistingEntitiesOk() {
         when(rangerConfig.hdfsServiceName()).thenReturn("cm_hdfs");
-        when(rangerService.findPolicyByName(anyString(), anyString(), any()))
-                .thenReturn(right(Optional.empty()));
+        when(rangerService.findPolicyByName(anyString(), anyString(), any())).thenReturn(right(Optional.empty()));
         when(rangerService.findRoleByName(anyString())).thenReturn(right(Optional.empty()));
 
         var actualRes = storageAreaHandler.destroy(provisionRequest);
@@ -130,8 +132,7 @@ public class StorageAreaHandlerTest {
         when(rangerService.findPolicyByName(anyString(), anyString(), any()))
                 .thenReturn(right(Optional.of(new RangerPolicy())));
         when(rangerService.deletePolicy(any())).thenReturn(right(null));
-        when(rangerService.findRoleByName(anyString()))
-                .thenReturn(right(Optional.of(new RangerRole())));
+        when(rangerService.findRoleByName(anyString())).thenReturn(right(Optional.of(new RangerRole())));
         when(rangerService.deleteRole(any())).thenReturn(right(null));
         when(hdfsService.deleteFolder(anyString())).thenReturn(right(""));
 
@@ -143,47 +144,35 @@ public class StorageAreaHandlerTest {
     @Test
     public void testCreateWrongComponentId() {
         when(principalMappingService.map(Set.of("ownerUser", "ownerGroup")))
-                .thenReturn(
-                        Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
-        String expectedError =
-                "Component id 'wrong_id' is not in the expected shape, cannot extract attributes";
+                .thenReturn(Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
+        String expectedError = "Component id 'wrong_id' is not in the expected shape, cannot extract attributes";
 
         var actualRes = storageAreaHandler.create(provisionRequestWrongComponentId);
 
         assertTrue(actualRes.isLeft());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedError, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedError, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
     public void testDestroyWrongComponentId() {
-        String expectedError =
-                "Component id 'wrong_id' is not in the expected shape, cannot extract attributes";
+        String expectedError = "Component id 'wrong_id' is not in the expected shape, cannot extract attributes";
 
         var actualRes = storageAreaHandler.destroy(provisionRequestWrongComponentId);
 
         assertTrue(actualRes.isLeft());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedError, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedError, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
     public void testDestroyNotSetSpecificComponent() {
         when(rangerConfig.hdfsServiceName()).thenReturn("cm_hdfs");
-        when(rangerService.findPolicyByName(anyString(), anyString(), any()))
-                .thenReturn(right(Optional.empty()));
+        when(rangerService.findPolicyByName(anyString(), anyString(), any())).thenReturn(right(Optional.empty()));
         when(rangerService.findRoleByName(anyString())).thenReturn(right(Optional.empty()));
         String expectedError =
                 "The specific section of the component urn:dmb:cmp:healthcare:vaccinations:0:storage is not of type StorageSpecific";
@@ -191,13 +180,9 @@ public class StorageAreaHandlerTest {
         var actualRes = storageAreaHandler.destroy(provisionRequestNotSetSpecific);
 
         assertTrue(actualRes.isLeft());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedError, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedError, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 }

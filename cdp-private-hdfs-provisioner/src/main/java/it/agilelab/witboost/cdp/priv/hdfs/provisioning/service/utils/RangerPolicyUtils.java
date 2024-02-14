@@ -26,8 +26,7 @@ public class RangerPolicyUtils {
         rangerPolicy.setDescription(policyName(prefixName));
         rangerPolicy.setIsAuditEnabled(true);
         rangerPolicy.setIsEnabled(true);
-        rangerPolicy.setResources(
-                Map.of("path", new RangerPolicy.RangerPolicyResource(folderPath, false, true)));
+        rangerPolicy.setResources(Map.of("path", new RangerPolicy.RangerPolicyResource(folderPath, false, true)));
         rangerPolicy.setPolicyItems(
                 Stream.concat(ownerPolicyItems(ownerRole).stream(), userPolicyItems(userRole).stream())
                         .toList());
@@ -54,8 +53,7 @@ public class RangerPolicyUtils {
         rangerPolicy.setDescription(policyName(prefixName));
         rangerPolicy.setIsAuditEnabled(true);
         rangerPolicy.setIsEnabled(true);
-        rangerPolicy.setResources(
-                Map.of("path", new RangerPolicy.RangerPolicyResource(folderPath, false, true)));
+        rangerPolicy.setResources(Map.of("path", new RangerPolicy.RangerPolicyResource(folderPath, false, true)));
         rangerPolicy.setPolicyItems(
                 Stream.concat(ownerPolicyItems(ownerRole).stream(), userPolicyItems(userRole).stream())
                         .toList());
@@ -72,27 +70,25 @@ public class RangerPolicyUtils {
     }
 
     private static List<RangerPolicy.RangerPolicyItem> ownerPolicyItems(String ownerRole) {
-        return List.of(
-                new RangerPolicy.RangerPolicyItem(
-                        List.of(
-                                new RangerPolicy.RangerPolicyItemAccess("READ", true),
-                                new RangerPolicy.RangerPolicyItemAccess("WRITE", true)),
-                        Collections.emptyList(),
-                        Collections.emptyList(),
-                        List.of(ownerRole),
-                        Collections.emptyList(),
-                        false));
+        return List.of(new RangerPolicy.RangerPolicyItem(
+                List.of(
+                        new RangerPolicy.RangerPolicyItemAccess("READ", true),
+                        new RangerPolicy.RangerPolicyItemAccess("WRITE", true)),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                List.of(ownerRole),
+                Collections.emptyList(),
+                false));
     }
 
     private static List<RangerPolicy.RangerPolicyItem> userPolicyItems(String userRole) {
-        return List.of(
-                new RangerPolicy.RangerPolicyItem(
-                        List.of(new RangerPolicy.RangerPolicyItemAccess("READ", true)),
-                        Collections.emptyList(),
-                        Collections.emptyList(),
-                        List.of(userRole),
-                        Collections.emptyList(),
-                        false));
+        return List.of(new RangerPolicy.RangerPolicyItem(
+                List.of(new RangerPolicy.RangerPolicyItemAccess("READ", true)),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                List.of(userRole),
+                Collections.emptyList(),
+                false));
     }
 
     private static String clean(String n) {

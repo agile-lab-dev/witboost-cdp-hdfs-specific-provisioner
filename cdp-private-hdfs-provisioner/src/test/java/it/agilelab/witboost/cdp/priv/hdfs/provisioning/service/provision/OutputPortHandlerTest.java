@@ -25,9 +25,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class OutputPortHandlerTest {
 
-    @Mock private RangerService rangerService;
+    @Mock
+    private RangerService rangerService;
 
-    @InjectMocks private OutputPortHandler outputPortHandler;
+    @InjectMocks
+    private OutputPortHandler outputPortHandler;
 
     private final OutputPort<Specific> outputPort;
     private final OutputPort<Specific> outputPortNoDepends;
@@ -94,14 +96,10 @@ public class OutputPortHandlerTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -114,14 +112,10 @@ public class OutputPortHandlerTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -135,21 +129,16 @@ public class OutputPortHandlerTest {
         DataProduct dp = new DataProduct();
         dp.setComponents(nodes);
         var provisionRequest = new ProvisionRequest<>(dp, outputPort, false);
-        String expectedDesc =
-                "prefixPath not found for the component urn:dmb:cmp:healthcare:vaccinations:0:storage";
+        String expectedDesc = "prefixPath not found for the component urn:dmb:cmp:healthcare:vaccinations:0:storage";
 
         var actualRes = outputPortHandler.create(provisionRequest);
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -167,8 +156,7 @@ public class OutputPortHandlerTest {
     public void testDestroyUpdateRoleOk() {
         DataProduct dp = new DataProduct();
         var provisionRequest = new ProvisionRequest<>(dp, outputPort, false);
-        when(rangerService.findRoleByName(anyString()))
-                .thenReturn(right(Optional.of(new RangerRole())));
+        when(rangerService.findRoleByName(anyString())).thenReturn(right(Optional.of(new RangerRole())));
         when(rangerService.updateRole(any())).thenReturn(right(new RangerRole()));
 
         var actualRes = outputPortHandler.destroy(provisionRequest);
@@ -186,14 +174,10 @@ public class OutputPortHandlerTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 
     @Test
@@ -206,13 +190,9 @@ public class OutputPortHandlerTest {
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
-        actualRes
-                .getLeft()
-                .problems()
-                .forEach(
-                        p -> {
-                            assertEquals(expectedDesc, p.description());
-                            assertTrue(p.cause().isEmpty());
-                        });
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
     }
 }
