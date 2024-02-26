@@ -73,7 +73,8 @@ public class RangerPolicyUtils {
         return List.of(new RangerPolicy.RangerPolicyItem(
                 List.of(
                         new RangerPolicy.RangerPolicyItemAccess("READ", true),
-                        new RangerPolicy.RangerPolicyItemAccess("WRITE", true)),
+                        new RangerPolicy.RangerPolicyItemAccess("WRITE", true),
+                        new RangerPolicy.RangerPolicyItemAccess("EXECUTE", true)),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 List.of(ownerRole),
@@ -83,7 +84,9 @@ public class RangerPolicyUtils {
 
     private static List<RangerPolicy.RangerPolicyItem> userPolicyItems(String userRole) {
         return List.of(new RangerPolicy.RangerPolicyItem(
-                List.of(new RangerPolicy.RangerPolicyItemAccess("READ", true)),
+                List.of(
+                        new RangerPolicy.RangerPolicyItemAccess("READ", true),
+                        new RangerPolicy.RangerPolicyItemAccess("EXECUTE", true)),
                 Collections.emptyList(),
                 Collections.emptyList(),
                 List.of(userRole),

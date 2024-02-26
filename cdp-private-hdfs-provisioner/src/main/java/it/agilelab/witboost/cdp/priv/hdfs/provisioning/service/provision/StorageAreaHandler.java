@@ -117,12 +117,19 @@ public class StorageAreaHandler extends BaseHandler {
         return right(prefixPath);
     }
 
-    private <T extends Specific> Either<FailedOperation, Void> upsertRangerEntities(
+    /*
+        This method is synchronized to avoid an error on Ranger
+        when deploying multiple storage areas for the same data product
+        (Ranger doesn't manage updating the same entity at the same time: first update works,
+        second update return an error because the DB is locked)
+        TODO: we can be more granular, it should be enough to synchronize (find & (create/update)) entities
+    */
+    private synchronized <T extends Specific> Either<FailedOperation, Void> upsertRangerEntities(
             ProvisionRequest<T> provisionRequest,
             String prefixPath,
             List<String> ownerUsers,
             List<String> ownerGroups) {
-        String deployUser = rangerConfig.username();
+        String deployUser = rangerConfig.ownerTechnicalUser();
 
         var eitherPrefixes = buildZoneName(provisionRequest.component().getId())
                 .flatMap(zoneName -> buildOwnerRolePrefix(
@@ -241,7 +248,7 @@ public class StorageAreaHandler extends BaseHandler {
     }
 
     private Either<FailedOperation, String> buildRangerPolicyFolderPath(String componentId, String prefixPath) {
-        return buildHdfsFolderPath(componentId, prefixPath).map(p -> String.format("%s/*", p));
+        return buildHdfsFolderPath(componentId, prefixPath).map(p -> String.format("%s*", p));
     }
 
     private Either<FailedOperation, String> buildPolicyPrefix(String componentId) {

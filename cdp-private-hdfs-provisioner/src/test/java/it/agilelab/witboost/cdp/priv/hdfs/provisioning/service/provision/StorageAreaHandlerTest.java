@@ -86,7 +86,7 @@ public class StorageAreaHandlerTest {
         when(rangerService.findPolicyByName(anyString(), anyString(), any())).thenReturn(right(Optional.empty()));
         when(rangerService.createPolicy(any())).thenReturn(right(new RangerPolicy()));
         when(hdfsService.createFolder(anyString())).thenReturn(right(""));
-        when(rangerConfig.username()).thenReturn("admin");
+        when(rangerConfig.ownerTechnicalUser()).thenReturn("admin");
 
         var actualRes = storageAreaHandler.create(provisionRequest);
 

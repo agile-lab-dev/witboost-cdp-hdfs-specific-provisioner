@@ -29,6 +29,7 @@ ranger:
   username: admin
   password: ${RANGER_PASSWORD}
   hdfsServiceName: cm_hdfs
+  ownerTechnicalUser: admin
 
 mapping:
   ldap:

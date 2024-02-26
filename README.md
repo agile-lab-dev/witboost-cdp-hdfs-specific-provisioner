@@ -195,12 +195,14 @@ The chart loads the `keytab` from a secret with key `cdp-private-hdfs-keytab`. T
 
 ### Ranger configuration
 
-| Configuration   | Description                                                                                                                                                                   | 
-|:----------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ranger.baseUrl  | Base URL for the Ranger Rest API                                                                                                                                              | 
-| ranger.timeout  | Timeout in milliseconds                                                                                                                                                       |
-| ranger.username | Ranger username                                                                                                                                                               |
-| ranger.password | Ranger password. The default value in the chart is `${RANGER_PASSWORD}`. With this syntax Spring will retrieve the value from an environment variable named `RANGER_PASSWORD` |
+| Configuration             | Description                                                                                                                                                                   | 
+|:--------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ranger.baseUrl            | Base URL for the Ranger Rest API                                                                                                                                              | 
+| ranger.timeout            | Timeout in milliseconds                                                                                                                                                       |
+| ranger.username           | Ranger username                                                                                                                                                               |
+| ranger.password           | Ranger password. The default value in the chart is `${RANGER_PASSWORD}`. With this syntax Spring will retrieve the value from an environment variable named `RANGER_PASSWORD` |
+| ranger.hdfsServiceName    | HDFS service name                                                                                                                                                             |
+| ranger.ownerTechnicalUser | Ranger user that will be admin of the security zone and will be included in the owner role                                                                                    |
 
 ### Ldap configuration
 

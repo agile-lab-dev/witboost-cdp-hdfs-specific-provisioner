@@ -20,14 +20,17 @@ public class RangerPolicyUtilsTest {
             new RangerPolicy.RangerPolicyItem(
                     List.of(
                             new RangerPolicy.RangerPolicyItemAccess("READ", true),
-                            new RangerPolicy.RangerPolicyItemAccess("WRITE", true)),
+                            new RangerPolicy.RangerPolicyItemAccess("WRITE", true),
+                            new RangerPolicy.RangerPolicyItemAccess("EXECUTE", true)),
                     Collections.emptyList(),
                     Collections.emptyList(),
                     List.of(ownerRole),
                     Collections.emptyList(),
                     false),
             new RangerPolicy.RangerPolicyItem(
-                    List.of(new RangerPolicy.RangerPolicyItemAccess("READ", true)),
+                    List.of(
+                            new RangerPolicy.RangerPolicyItemAccess("READ", true),
+                            new RangerPolicy.RangerPolicyItemAccess("EXECUTE", true)),
                     Collections.emptyList(),
                     Collections.emptyList(),
                     List.of(userRole),
