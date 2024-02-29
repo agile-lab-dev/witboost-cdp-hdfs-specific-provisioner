@@ -123,7 +123,7 @@ public class OutputPortValidationTest {
         nodes.add(outputPortNode);
         dataProduct.setComponents(nodes);
 
-        String expectedDesc = "Component with ID my_id_storage not found in the Descriptor";
+        String expectedDesc = "OutputPort's dependency my_id_storage not found in the Descriptor";
 
         var actualRes = OutputPortValidation.validate(dataProduct, outputPort);
 

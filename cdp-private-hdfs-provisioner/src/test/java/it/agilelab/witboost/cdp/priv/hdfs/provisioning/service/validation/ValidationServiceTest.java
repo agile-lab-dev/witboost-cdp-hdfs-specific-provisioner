@@ -141,4 +141,116 @@ public class ValidationServiceTest {
             assertTrue(p.cause().isEmpty());
         });
     }
+
+    @Test
+    public void testJsonValidateOutputPortOk() throws IOException {
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_outputport_ok.json");
+        ProvisioningRequest provisioningRequest =
+                new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
+
+        var actualRes = validationService.validate(provisioningRequest);
+
+        assertTrue(actualRes.isRight());
+    }
+
+    @Test
+    public void testJsonValidateStorageOk() throws IOException {
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_ok.json");
+        ProvisioningRequest provisioningRequest =
+                new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
+
+        var actualRes = validationService.validate(provisioningRequest);
+
+        assertTrue(actualRes.isRight());
+    }
+
+    @Test
+    public void testJsonValidateWrongDescriptorKind() throws IOException {
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_outputport_ok.json");
+        ProvisioningRequest provisioningRequest =
+                new ProvisioningRequest(DescriptorKind.DATAPRODUCT_DESCRIPTOR, ymlDescriptor, false);
+        String expectedDesc =
+                "The descriptorKind field is not valid. Expected: 'COMPONENT_DESCRIPTOR', Actual: 'DATAPRODUCT_DESCRIPTOR'";
+
+        var actualRes = validationService.validate(provisioningRequest);
+
+        assertTrue(actualRes.isLeft());
+        assertEquals(1, actualRes.getLeft().problems().size());
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
+    }
+
+    @Test
+    public void testJsonValidateMissingComponentIdToProvision() throws IOException {
+        String ymlDescriptor =
+                ResourceUtils.getContentFromResource("/descriptor_storage_missing_componentIdToProvision.json");
+        ProvisioningRequest provisioningRequest =
+                new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
+        String expectedDesc = "Component with ID null not found in the Descriptor";
+
+        var actualRes = validationService.validate(provisioningRequest);
+
+        assertTrue(actualRes.isLeft());
+        assertEquals(1, actualRes.getLeft().problems().size());
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
+    }
+
+    @Test
+    public void testJsonValidateMissingComponentToProvision() throws IOException {
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_missing_component.json");
+        ProvisioningRequest provisioningRequest =
+                new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
+        String expectedDesc =
+                "Component with ID urn:dmb:cmp:healthcare:vaccinations:0:storage not found in the Descriptor";
+
+        var actualRes = validationService.validate(provisioningRequest);
+
+        assertTrue(actualRes.isLeft());
+        assertEquals(1, actualRes.getLeft().problems().size());
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
+    }
+
+    @Test
+    public void testJsonValidateMissingComponentKindToProvision() throws IOException {
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_missing_componentKind.json");
+        ProvisioningRequest provisioningRequest =
+                new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
+        String expectedDesc =
+                "Component Kind not found for the component with ID urn:dmb:cmp:healthcare:vaccinations:0:storage";
+
+        var actualRes = validationService.validate(provisioningRequest);
+
+        assertTrue(actualRes.isLeft());
+        assertEquals(1, actualRes.getLeft().problems().size());
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
+    }
+
+    @Test
+    public void testJsonValidateWrongComponentKindToProvision() throws IOException {
+        String ymlDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_wrong_componentKind.json");
+        ProvisioningRequest provisioningRequest =
+                new ProvisioningRequest(DescriptorKind.COMPONENT_DESCRIPTOR, ymlDescriptor, false);
+        String expectedDesc =
+                "The kind 'wrong' of the component to provision is not supported by this Specific Provisioner";
+
+        var actualRes = validationService.validate(provisioningRequest);
+
+        assertTrue(actualRes.isLeft());
+        assertEquals(1, actualRes.getLeft().problems().size());
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
+    }
 }

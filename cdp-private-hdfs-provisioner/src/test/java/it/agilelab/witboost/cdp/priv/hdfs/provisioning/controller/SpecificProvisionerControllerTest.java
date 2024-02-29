@@ -128,4 +128,37 @@ public class SpecificProvisionerControllerTest {
                 () -> specificProvisionerController.unprovision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
     }
+
+    @Test
+    void testUpdateAclOk() throws Exception {
+        UpdateAclRequest updateAclRequest =
+                new UpdateAclRequest(Collections.singletonList("user:user.name_email.com"), new ProvisionInfo("", ""));
+        MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(mockHttpServletRequest));
+        when(provisionService.updateAcl(updateAclRequest))
+                .thenReturn(new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, ""));
+
+        ResponseEntity<ProvisioningStatus> actualRes = specificProvisionerController.updateacl(updateAclRequest);
+
+        assertEquals(HttpStatusCode.valueOf(200), actualRes.getStatusCode());
+        assertEquals(
+                ProvisioningStatus.StatusEnum.COMPLETED,
+                Objects.requireNonNull(actualRes.getBody()).getStatus());
+    }
+
+    @Test
+    void testUpdateAclHasError() throws Exception {
+        UpdateAclRequest updateAclRequest =
+                new UpdateAclRequest(Collections.singletonList("user:user.name_email.com"), new ProvisionInfo("", ""));
+        MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(mockHttpServletRequest));
+        var failedOperation = new FailedOperation(Collections.singletonList(new Problem("error")));
+        when(provisionService.updateAcl(updateAclRequest))
+                .thenThrow(new SpecificProvisionerValidationException(failedOperation));
+
+        var ex = assertThrows(
+                SpecificProvisionerValidationException.class,
+                () -> specificProvisionerController.updateacl(updateAclRequest));
+        assertEquals(failedOperation, ex.getFailedOperation());
+    }
 }

@@ -10,24 +10,26 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.FailedOperation;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.Problem;
-import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.OutputPort;
-import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.ProvisionRequest;
-import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.Specific;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.config.RangerConfig;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.*;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.*;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.PrincipalMappingService;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.RangerService;
-import java.util.Collections;
-import java.util.List;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.utils.RangerRoleUtils;
+import java.util.*;
+import java.util.stream.Collectors;
+import org.apache.ranger.plugin.model.RangerRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OutputPortHandler extends BaseHandler {
-
-    private final RangerService rangerService;
     private final Logger logger = LoggerFactory.getLogger(OutputPortHandler.class);
 
-    public OutputPortHandler(RangerService rangerService) {
-        this.rangerService = rangerService;
+    public OutputPortHandler(
+            RangerService rangerService, RangerConfig rangerConfig, PrincipalMappingService principalMappingService) {
+        super(rangerService, rangerConfig, principalMappingService);
     }
 
     public <T extends Specific> Either<FailedOperation, String> create(ProvisionRequest<T> provisionRequest) {
@@ -71,6 +73,66 @@ public class OutputPortHandler extends BaseHandler {
             }
         } else {
             return left(wrongComponentType());
+        }
+    }
+
+    public <T extends Specific> Either<FailedOperation, ProvisioningStatus> updateAcl(
+            Collection<String> refs, ProvisionRequest<T> provisionRequest) {
+
+        Map<String, Either<FailedOperation, CDPIdentity>> eitherPrincipals =
+                principalMappingService.map(Set.copyOf(refs));
+
+        List<CDPIdentity> principals = eitherPrincipals.values().stream()
+                .filter(Either::isRight)
+                .map(Either::get)
+                .toList();
+
+        List<String> users = principals.stream()
+                .filter(p -> p instanceof CDPUser)
+                .map(p -> (CDPUser) p)
+                .map(CDPUser::userId)
+                .toList();
+
+        List<String> groups = principals.stream()
+                .filter(p -> p instanceof CDPGroup)
+                .map(p -> (CDPGroup) p)
+                .map(CDPGroup::name)
+                .toList();
+
+        ArrayList<Problem> problems = eitherPrincipals.values().stream()
+                .filter(Either::isLeft)
+                .map(Either::getLeft)
+                .flatMap(x -> x.problems().stream())
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        logger.info(
+                "Updating Access Control Lists for the following users => {} - groups => {}",
+                String.join(", ", users),
+                String.join(", ", groups));
+
+        // Validation of the descriptor has been run before executing updateAcl, so we are sure that the
+        // component is of type 'OutputPort', the dependency exists and is of the right type (i.e. it's a Storage Area
+        // Component)
+        OutputPort<T> outputPort = (OutputPort<T>) provisionRequest.component();
+        String storageComponentId = outputPort.getDependsOn().get(0);
+
+        Either<FailedOperation, RangerRole> userRangerRoleRes = buildUserRolePrefix(storageComponentId)
+                .map(RangerRoleUtils::generateUserRoleName)
+                .flatMap(userRoleName -> upsertRole(userRoleName, users, groups, rangerConfig.ownerTechnicalUser()));
+
+        if (userRangerRoleRes.isLeft()) {
+            problems.addAll(userRangerRoleRes.getLeft().problems());
+        }
+
+        if (problems.isEmpty()) {
+            logger.info(
+                    "Access Control Lists updated successfully: no problems encountered while updating Access Control Lists");
+            return right(new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, ""));
+        } else {
+            logger.warn(
+                    "Access Control Lists updated: some issues were encountered while updating Access Control Lists");
+            problems.forEach(problem -> logger.warn(problem.description()));
+            return left(new FailedOperation(problems));
         }
     }
 

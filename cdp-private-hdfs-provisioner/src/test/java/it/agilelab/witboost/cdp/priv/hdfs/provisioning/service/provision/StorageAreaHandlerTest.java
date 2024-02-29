@@ -7,11 +7,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.FailedOperation;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.Problem;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.config.RangerConfig;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.*;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.HdfsService;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.PrincipalMappingService;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.RangerService;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -184,5 +187,16 @@ public class StorageAreaHandlerTest {
             assertEquals(expectedError, p.description());
             assertTrue(p.cause().isEmpty());
         });
+    }
+
+    @Test
+    public void testUpdateAcl() {
+        // When
+        var actualRes = storageAreaHandler.updateAcl();
+
+        // Then
+        FailedOperation expectedRes = new FailedOperation(
+                List.of(new Problem("Updating Access Control Lists is not supported by the Storage Area Component")));
+        assertEquals(expectedRes, actualRes);
     }
 }

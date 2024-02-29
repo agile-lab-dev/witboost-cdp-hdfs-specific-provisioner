@@ -2,14 +2,31 @@ package it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.provision;
 
 import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
+import static it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.utils.RangerRoleUtils.rangerRole;
 
 import io.vavr.control.Either;
+import io.vavr.control.Option;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.FailedOperation;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.Problem;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.config.RangerConfig;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.ComponentInfo;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.PrincipalMappingService;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.RangerService;
 import java.util.List;
+import org.apache.ranger.plugin.model.RangerRole;
 
 public abstract class BaseHandler {
+
+    protected final RangerService rangerService;
+    protected final PrincipalMappingService principalMappingService;
+    protected final RangerConfig rangerConfig;
+
+    public BaseHandler(
+            RangerService rangerService, RangerConfig rangerConfig, PrincipalMappingService principalMappingService) {
+        this.rangerService = rangerService;
+        this.rangerConfig = rangerConfig;
+        this.principalMappingService = principalMappingService;
+    }
 
     protected String prefixPathWithTrailingSlash(String prefixPath) {
         return prefixPath.endsWith("/") ? prefixPath : prefixPath.concat("/");
@@ -44,5 +61,13 @@ public abstract class BaseHandler {
                 identifiers.dataProductId(),
                 identifiers.dataProductMajorVersion(),
                 identifiers.componentId()));
+    }
+
+    protected Either<FailedOperation, RangerRole> upsertRole(
+            String roleName, List<String> users, List<String> groups, String deployUser) {
+        return rangerService.findRoleByName(roleName).flatMap(r -> Option.ofOptional(r)
+                .fold(
+                        () -> rangerService.createRole(rangerRole(roleName, users, groups, deployUser)),
+                        rr -> rangerService.updateRole(rangerRole(rr, users, groups))));
     }
 }

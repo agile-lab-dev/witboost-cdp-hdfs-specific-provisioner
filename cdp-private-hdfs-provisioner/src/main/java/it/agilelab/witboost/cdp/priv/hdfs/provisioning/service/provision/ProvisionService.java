@@ -2,6 +2,7 @@ package it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.provision;
 
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ProvisioningRequest;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ProvisioningStatus;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.UpdateAclRequest;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ValidationResult;
 
 /***
@@ -32,4 +33,12 @@ public interface ProvisionService {
      * @return the outcome of the unprovision
      */
     ProvisioningStatus unprovision(ProvisioningRequest provisioningRequest);
+
+    /**
+     * Updates the Access Control List for the component present in the request
+     *
+     * @param updateAclRequest the request
+     * @return the status of updating Access Control Lists
+     */
+    ProvisioningStatus updateAcl(UpdateAclRequest updateAclRequest);
 }

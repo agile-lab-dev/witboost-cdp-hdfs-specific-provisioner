@@ -92,4 +92,60 @@ public class ParserTest {
             assertTrue(p.cause().isPresent());
         });
     }
+
+    @Test
+    public void testParseJsonStorageDescriptorOk() throws IOException {
+        // Given
+        String jsonDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_ok.json");
+
+        // When
+        var actualRes = Parser.parseDescriptor(jsonDescriptor);
+
+        // Then
+        assertTrue(actualRes.isRight());
+    }
+
+    @Test
+    public void testJsonParseStorageComponentOk() throws IOException {
+        String jsonDescriptor = ResourceUtils.getContentFromResource("/descriptor_storage_ok.json");
+        var eitherDescriptor = Parser.parseDescriptor(jsonDescriptor);
+        assertTrue(eitherDescriptor.isRight());
+        Descriptor descriptor = eitherDescriptor.get();
+        String componentIdToProvision = "urn:dmb:cmp:healthcare:vaccinations:0:storage";
+        var optionalComponent = descriptor.getDataProduct().getComponentToProvision(componentIdToProvision);
+        assertTrue(optionalComponent.isDefined());
+        JsonNode component = optionalComponent.get();
+
+        var actualRes = Parser.parseComponent(component, StorageSpecific.class);
+
+        assertTrue(actualRes.isRight());
+    }
+
+    @Test
+    public void testParseJsonOutputPortOk() throws IOException {
+        // Given
+        String jsonDescriptor = ResourceUtils.getContentFromResource("/descriptor_outputport_ok.json");
+
+        // When
+        var actualRes = Parser.parseDescriptor(jsonDescriptor);
+
+        // Then
+        assertTrue(actualRes.isRight());
+    }
+
+    @Test
+    public void testJsonParseOutputPortComponentOk() throws IOException {
+        String jsonDescriptor = ResourceUtils.getContentFromResource("/descriptor_outputport_ok.json");
+        var eitherDescriptor = Parser.parseDescriptor(jsonDescriptor);
+        assertTrue(eitherDescriptor.isRight());
+        Descriptor descriptor = eitherDescriptor.get();
+        String componentIdToProvision = "urn:dmb:cmp:healthcare:vaccinations:0:hdfs-output-port";
+        var optionalComponent = descriptor.getDataProduct().getComponentToProvision(componentIdToProvision);
+        assertTrue(optionalComponent.isDefined());
+        JsonNode component = optionalComponent.get();
+
+        var actualRes = Parser.parseComponent(component, Specific.class);
+
+        assertTrue(actualRes.isRight());
+    }
 }

@@ -21,7 +21,9 @@ public class OutputPortValidation {
     private static final String STORAGE_KIND = "storage";
 
     public static Either<FailedOperation, Void> validate(DataProduct dp, Component<? extends Specific> component) {
+        logger.info("Checking component with ID {} is of type OutputPort", component.getId());
         if (component instanceof OutputPort<? extends Specific> op) {
+            logger.info("Checking OutputPort component with ID {} has a dependency", component.getId());
             if (op.getDependsOn() == null || op.getDependsOn().size() != 1) {
                 String errorMessage = String.format(
                         "Expected exactly a dependency for the component %s, found: %d",
@@ -31,15 +33,21 @@ public class OutputPortValidation {
                 return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage))));
             }
             var dependentComponentId = op.getDependsOn().get(0);
+            logger.info("Checking OutputPort's dependency {} is a component in the descriptor", dependentComponentId);
             var optionalDependentComponentAsJson = dp.getComponentToProvision(dependentComponentId);
-            if (optionalDependentComponentAsJson.isEmpty())
-                return left(new FailedOperation(Collections.singletonList(new Problem(
-                        String.format("Component with ID %s not found in the Descriptor", dependentComponentId)))));
+            if (optionalDependentComponentAsJson.isEmpty()) {
+                String errorMessage =
+                        String.format("OutputPort's dependency %s not found in the Descriptor", dependentComponentId);
+                logger.error(errorMessage);
+                return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage))));
+            }
+            logger.info("Parsing OutputPort's dependency {}", dependentComponentId);
             var dependentComponentAsJson = optionalDependentComponentAsJson.get();
             var eitherDependentComponent = Parser.parseComponent(dependentComponentAsJson, Specific.class);
             if (eitherDependentComponent.isLeft()) return left(eitherDependentComponent.getLeft());
             var dependentComponent = eitherDependentComponent.get();
 
+            logger.info("Checking dependency {} to have 'kind' field equal to 'storage'", dependentComponentId);
             if (!STORAGE_KIND.equalsIgnoreCase(dependentComponent.getKind())) {
                 String errorMessage = String.format(
                         "Kind of dependent component %s is not right. Expected: %s, found: %s",
@@ -52,6 +60,7 @@ public class OutputPortValidation {
             logger.error(errorMessage);
             return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage))));
         }
+        logger.info("Validation of OutputPort {} completed successfully", component.getId());
         return right(null);
     }
 }

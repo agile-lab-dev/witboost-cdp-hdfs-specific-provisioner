@@ -522,14 +522,7 @@ curl -X POST /{{version}}/updateacl \
 
 ```javascript
 const inputBody = '{
-  "acl": {
-    "users": [
-      "string"
-    ],
-    "groups": [
-      "string"
-    ]
-  },
+  "refs": ["user:user.name_email.com", "group:groupName"],
   "provisionInfo": {
     "request": "string",
     "result": "string"
@@ -600,14 +593,7 @@ print(r.json())
 
 ```json
 {
-  "acl": {
-    "users": [
-      "string"
-    ],
-    "groups": [
-      "string"
-    ]
-  },
+  "refs": ["user:user.name_email.com","group:groupName"],
   "provisionInfo": {
     "request": "string",
     "result": "string"
@@ -627,7 +613,7 @@ print(r.json())
 
 ```json
 {
-  "status": "RUNNING",
+  "status": "COMPLETED",
   "result": "string"
 }
 ```
@@ -656,14 +642,7 @@ This operation does not require authentication
 
 ```json
 {
-  "acl": {
-    "users": [
-      "string"
-    ],
-    "groups": [
-      "string"
-    ]
-  },
+  "refs": ["user:user.name_email.com","group:groupName"],
   "provisionInfo": {
     "request": "string",
     "result": "string"
@@ -674,10 +653,10 @@ This operation does not require authentication
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|acl|[Acl](#schemaacl)|true|none|none|
-|provisionInfo|[ProvisionInfo](#schemaprovisioninfo)|true|none|none|
+| Name          | Type                                  |Required|Restrictions|Description|
+|---------------|---------------------------------------|---|---|---|
+| refs          | [Refs](#schemaacl)                    |true|none|none|
+| provisionInfo | [ProvisionInfo](#schemaprovisioninfo) |true|none|none|
 
 <h2 id="tocS_DescriptorKind">DescriptorKind</h2>
 <!-- backwards compatibility -->
@@ -805,7 +784,7 @@ This operation does not require authentication
 |---|---|---|---|---|
 |errors|[string]|true|none|none|
 
-<h2 id="tocS_Acl">Acl</h2>
+<h2 id="tocS_Acl">Refs</h2>
 <!-- backwards compatibility -->
 <a id="schemaacl"></a>
 <a id="schema_Acl"></a>
@@ -813,23 +792,14 @@ This operation does not require authentication
 <a id="tocsacl"></a>
 
 ```json
-{
-  "users": [
-    "string"
-  ],
-  "groups": [
-    "string"
-  ]
-}
-
+["string"]
 ```
 
 ### Properties
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|users|[string]|true|none|none|
-|groups|[string]|true|none|none|
+| Name   |Type|Required|Restrictions|Description|
+|--------|---|---|---|---|
+| refs   |[string]|true|none|none|
 
 <h2 id="tocS_ProvisionInfo">ProvisionInfo</h2>
 <!-- backwards compatibility -->

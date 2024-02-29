@@ -2,6 +2,7 @@ package it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.provision;
 
 import static io.vavr.control.Either.left;
 import static io.vavr.control.Either.right;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -240,5 +241,112 @@ public class ProvisionServiceTest {
         var ex = assertThrows(
                 SpecificProvisionerValidationException.class, () -> provisionService.unprovision(provisioningRequest));
         assertEquals(failedOperation, ex.getFailedOperation());
+    }
+
+    @Test
+    public void testUpdateAclOutputPortOk() {
+        // Given
+        ProvisioningRequest provisioningRequest = new ProvisioningRequest();
+        provisioningRequest.setDescriptorKind(DescriptorKind.COMPONENT_DESCRIPTOR);
+        OutputPort<Specific> outputPort = new OutputPort<>();
+        outputPort.setKind("outputport");
+        List<String> refs = List.of();
+        UpdateAclRequest updateAclRequest = new UpdateAclRequest(refs, new ProvisionInfo());
+        ProvisionRequest<Specific> provisionRequest = new ProvisionRequest<>(null, outputPort, false);
+
+        ProvisioningStatus provisioningStatus = new ProvisioningStatus(ProvisioningStatus.StatusEnum.COMPLETED, "");
+        when(validationService.validate(provisioningRequest)).thenReturn(right(provisionRequest));
+        when(outputPortHandler.updateAcl(refs, provisionRequest)).thenReturn(right(provisioningStatus));
+
+        // When
+        ProvisioningStatus actualRes = provisionService.updateAcl(updateAclRequest);
+
+        // Then
+        ProvisioningStatus expectedRes = provisioningStatus;
+        assertEquals(expectedRes, actualRes);
+    }
+
+    @Test
+    public void testUpdateAclOutputPortFailing() {
+        // Given
+        ProvisioningRequest provisioningRequest = new ProvisioningRequest();
+        provisioningRequest.setDescriptorKind(DescriptorKind.COMPONENT_DESCRIPTOR);
+        OutputPort<Specific> outputPort = new OutputPort<>();
+        outputPort.setKind("outputport");
+        List<String> refs = List.of();
+        UpdateAclRequest updateAclRequest = new UpdateAclRequest(refs, new ProvisionInfo());
+        ProvisionRequest<Specific> provisionRequest = new ProvisionRequest<>(null, outputPort, false);
+
+        when(validationService.validate(provisioningRequest)).thenReturn(right(provisionRequest));
+        when(outputPortHandler.updateAcl(refs, provisionRequest))
+                .thenReturn(left(new FailedOperation(List.of(new Problem("")))));
+
+        // When and Then
+        assertThatThrownBy(() -> provisionService.updateAcl(updateAclRequest))
+                .isInstanceOf(SpecificProvisionerValidationException.class)
+                .hasFieldOrPropertyWithValue("failedOperation", new FailedOperation(List.of(new Problem(""))));
+    }
+
+    @Test
+    public void testUpdateAclStorageArea() {
+        // Given
+        ProvisioningRequest provisioningRequest = new ProvisioningRequest();
+        provisioningRequest.setDescriptorKind(DescriptorKind.COMPONENT_DESCRIPTOR);
+        StorageArea<Specific> storageArea = new StorageArea<>();
+        storageArea.setKind("storage");
+        List<String> refs = List.of();
+        UpdateAclRequest updateAclRequest = new UpdateAclRequest(refs, new ProvisionInfo());
+        ProvisionRequest<Specific> provisionRequest = new ProvisionRequest<>(null, storageArea, false);
+
+        FailedOperation failedOperation = new FailedOperation(List.of(new Problem("")));
+
+        when(validationService.validate(provisioningRequest)).thenReturn(right(provisionRequest));
+        when(storageAreaHandler.updateAcl()).thenReturn(failedOperation);
+
+        // When and Then
+        assertThatThrownBy(() -> provisionService.updateAcl(updateAclRequest))
+                .isInstanceOf(SpecificProvisionerValidationException.class)
+                .hasFieldOrPropertyWithValue("failedOperation", failedOperation);
+    }
+
+    @Test
+    public void testUpdateAclFailingBecauseOfUnknownComponentKind() {
+        // Given
+        ProvisioningRequest provisioningRequest = new ProvisioningRequest();
+        provisioningRequest.setDescriptorKind(DescriptorKind.COMPONENT_DESCRIPTOR);
+        StorageArea<Specific> storageArea = new StorageArea<>();
+        storageArea.setKind("unknown");
+        List<String> refs = List.of();
+        UpdateAclRequest updateAclRequest = new UpdateAclRequest(refs, new ProvisionInfo());
+        ProvisionRequest<Specific> provisionRequest = new ProvisionRequest<>(null, storageArea, false);
+
+        FailedOperation failedOperation = new FailedOperation(List.of(
+                new Problem("The kind 'unknown' of the component is not supported by this Specific Provisioner")));
+
+        when(validationService.validate(provisioningRequest)).thenReturn(right(provisionRequest));
+
+        // When and Then
+        assertThatThrownBy(() -> provisionService.updateAcl(updateAclRequest))
+                .isInstanceOf(SpecificProvisionerValidationException.class)
+                .hasFieldOrPropertyWithValue("failedOperation", failedOperation);
+    }
+
+    @Test
+    public void testUpdateAclFailingBecauseOfFailingValidation() {
+        // Given
+        ProvisioningRequest provisioningRequest = new ProvisioningRequest();
+        provisioningRequest.setDescriptorKind(DescriptorKind.COMPONENT_DESCRIPTOR);
+        List<String> refs = List.of();
+        UpdateAclRequest updateAclRequest = new UpdateAclRequest(refs, new ProvisionInfo());
+
+        FailedOperation failedOperation =
+                new FailedOperation(List.of(new Problem("Something went wrong with the validation of ProvisionInfo")));
+
+        when(validationService.validate(provisioningRequest)).thenReturn(left(failedOperation));
+
+        // When and Then
+        assertThatThrownBy(() -> provisionService.updateAcl(updateAclRequest))
+                .isInstanceOf(SpecificProvisionerValidationException.class)
+                .hasFieldOrPropertyWithValue("failedOperation", failedOperation);
     }
 }

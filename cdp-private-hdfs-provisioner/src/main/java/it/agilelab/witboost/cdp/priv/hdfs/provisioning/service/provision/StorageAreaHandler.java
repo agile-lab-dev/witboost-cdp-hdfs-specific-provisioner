@@ -27,10 +27,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StorageAreaHandler extends BaseHandler {
-    private final PrincipalMappingService principalMappingService;
-    private final RangerService rangerService;
     private final HdfsService hdfsService;
-    private final RangerConfig rangerConfig;
     private final Logger logger = LoggerFactory.getLogger(StorageAreaHandler.class);
 
     public StorageAreaHandler(
@@ -38,10 +35,8 @@ public class StorageAreaHandler extends BaseHandler {
             RangerService rangerService,
             HdfsService hdfsService,
             RangerConfig rangerConfig) {
-        this.principalMappingService = principalMappingService;
-        this.rangerService = rangerService;
+        super(rangerService, rangerConfig, principalMappingService);
         this.hdfsService = hdfsService;
-        this.rangerConfig = rangerConfig;
     }
 
     public <T extends Specific> Either<FailedOperation, String> create(ProvisionRequest<T> provisionRequest) {
@@ -175,19 +170,11 @@ public class StorageAreaHandler extends BaseHandler {
         if (rangerZoneRes.isLeft()) return left(rangerZoneRes.getLeft());
 
         String ownerRoleName = generateOwnerRoleName(ownerRolePrefix);
-        var ownerRangerRoleRes = rangerService.findRoleByName(ownerRoleName).flatMap(r -> Option.ofOptional(r)
-                .fold(
-                        () -> rangerService.createRole(rangerRole(ownerRoleName, ownerUsers, ownerGroups, deployUser)),
-                        rr -> rangerService.updateRole(rangerRole(rr, ownerUsers, ownerGroups))));
+        var ownerRangerRoleRes = upsertRole(ownerRoleName, ownerUsers, ownerGroups, deployUser);
         if (ownerRangerRoleRes.isLeft()) return left(ownerRangerRoleRes.getLeft());
 
         String userRoleName = generateUserRoleName(userRolePrefix);
-        var userRangerRoleRes = rangerService.findRoleByName(userRoleName).flatMap(r -> Option.ofOptional(r)
-                .fold(
-                        () -> rangerService.createRole(
-                                rangerRole(userRoleName, Collections.emptyList(), Collections.emptyList(), deployUser)),
-                        rr -> rangerService.updateRole(
-                                rangerRole(rr, Collections.emptyList(), Collections.emptyList()))));
+        var userRangerRoleRes = upsertRole(userRoleName, Collections.emptyList(), Collections.emptyList(), deployUser);
         if (userRangerRoleRes.isLeft()) return left(userRangerRoleRes.getLeft());
 
         var componentRangerPolicy = rangerService
@@ -237,6 +224,12 @@ public class StorageAreaHandler extends BaseHandler {
                         .map(p -> (CDPGroup) p)
                         .map(CDPGroup::name)
                         .toList()));
+    }
+
+    public FailedOperation updateAcl() {
+        String errorMessage = "Updating Access Control Lists is not supported by the Storage Area Component";
+        logger.error(errorMessage);
+        return new FailedOperation(Collections.singletonList(new Problem(errorMessage)));
     }
 
     private Either<FailedOperation, String> buildSecurityZoneFolderPath(String componentId, String prefixPath) {
