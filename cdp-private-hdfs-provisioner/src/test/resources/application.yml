@@ -20,7 +20,8 @@ kerberos:
   principal: user
 
 hdfs:
-  baseUrl: http://hdfs-host
+  baseUrlNN1: http://hdfs-host-1
+  baseUrlNN2: http://hdfs-host-2
   timeout: 30000
 
 ranger:

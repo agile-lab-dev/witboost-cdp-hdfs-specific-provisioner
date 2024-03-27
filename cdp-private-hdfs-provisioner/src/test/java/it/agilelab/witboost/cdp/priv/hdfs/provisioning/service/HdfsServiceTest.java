@@ -46,11 +46,12 @@ public class HdfsServiceTest {
 
     @Test
     public void testCreateFolderShouldReturnOk() {
+        setupActiveNN1();
         String path = "/my/folder";
         String res = """
             {"boolean": true}
              """;
-        server.expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=MKDIRS"))
+        server.expect(requestTo("http://hdfs-host-1/webhdfs/v1/my/folder?op=MKDIRS"))
                 .andRespond(withSuccess(res, MediaType.APPLICATION_JSON));
 
         Either<FailedOperation, String> actualRes = hdfsService.createFolder(path);
@@ -61,11 +62,12 @@ public class HdfsServiceTest {
 
     @Test
     public void testCreateFolderShouldFail() {
+        setupActiveNN1();
         String path = "/my/folder";
         String res = """
             {"boolean": false}
              """;
-        server.expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=MKDIRS"))
+        server.expect(requestTo("http://hdfs-host-1/webhdfs/v1/my/folder?op=MKDIRS"))
                 .andRespond(withSuccess(res, MediaType.APPLICATION_JSON));
         var expectedRes = new FailedOperation(
                 Collections.singletonList(
@@ -80,8 +82,9 @@ public class HdfsServiceTest {
 
     @Test
     public void testCreateFolderShouldReturnBadStatusCode() {
+        setupActiveNN1();
         String path = "/my/folder";
-        server.expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=MKDIRS"))
+        server.expect(requestTo("http://hdfs-host-1/webhdfs/v1/my/folder?op=MKDIRS"))
                 .andRespond(withServerError());
         var expectedDesc =
                 "Failed to create the folder '/my/folder'. Please try again and if the issue persists contact the platform team. Details: ";
@@ -97,12 +100,44 @@ public class HdfsServiceTest {
     }
 
     @Test
-    public void testDeleteFolderShouldReturnOk() {
+    public void testCreateFolderShouldUseNN2() {
+        setupActiveNN2();
         String path = "/my/folder";
         String res = """
             {"boolean": true}
              """;
-        server.expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=DELETE&recursive=true"))
+        server.expect(requestTo("http://hdfs-host-2/webhdfs/v1/my/folder?op=MKDIRS"))
+                .andRespond(withSuccess(res, MediaType.APPLICATION_JSON));
+
+        Either<FailedOperation, String> actualRes = hdfsService.createFolder(path);
+
+        assertTrue(actualRes.isRight());
+        assertEquals(path, actualRes.get());
+    }
+
+    @Test
+    public void testNoActiveNNs() {
+        setupStoppingNNs();
+        var expectedDesc =
+                "Unable to find an active NameNode. Please try again and if the issue persists contact the platform team.";
+
+        Either<FailedOperation, String> actualRes = hdfsService.createFolder("path");
+
+        assertTrue(actualRes.isLeft());
+        actualRes.getLeft().problems().forEach(p -> {
+            assertEquals(expectedDesc, p.description());
+            assertTrue(p.cause().isEmpty());
+        });
+    }
+
+    @Test
+    public void testDeleteFolderShouldReturnOk() {
+        setupActiveNN1();
+        String path = "/my/folder";
+        String res = """
+            {"boolean": true}
+             """;
+        server.expect(requestTo("http://hdfs-host-1/webhdfs/v1/my/folder?op=DELETE&recursive=true"))
                 .andRespond(withSuccess(res, MediaType.APPLICATION_JSON));
 
         Either<FailedOperation, String> actualRes = hdfsService.deleteFolder(path);
@@ -113,11 +148,12 @@ public class HdfsServiceTest {
 
     @Test
     public void testDeleteFolderAlreadyDeleted() {
+        setupActiveNN1();
         String path = "/my/folder";
         String res = """
             {"boolean": false}
              """;
-        server.expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=DELETE&recursive=true"))
+        server.expect(requestTo("http://hdfs-host-1/webhdfs/v1/my/folder?op=DELETE&recursive=true"))
                 .andRespond(withSuccess(res, MediaType.APPLICATION_JSON));
 
         Either<FailedOperation, String> actualRes = hdfsService.deleteFolder(path);
@@ -128,8 +164,9 @@ public class HdfsServiceTest {
 
     @Test
     public void testDeleteFolderShouldReturnBadStatusCode() {
+        setupActiveNN1();
         String path = "/my/folder";
-        server.expect(requestTo("http://hdfs-host/webhdfs/v1/my/folder?op=DELETE&recursive=true"))
+        server.expect(requestTo("http://hdfs-host-1/webhdfs/v1/my/folder?op=DELETE&recursive=true"))
                 .andRespond(withServerError());
         var expectedDesc =
                 "Failed to delete the folder '/my/folder'. Please try again and if the issue persists contact the platform team. Details: ";
@@ -142,5 +179,72 @@ public class HdfsServiceTest {
             assertTrue(p.cause().isPresent());
             assertInstanceOf(RestClientResponseException.class, p.cause().get());
         });
+    }
+
+    private void setupActiveNN1() {
+        String jmxRes =
+                """
+            {"beans" : [ {
+                                    "name" : "Hadoop:service=NameNode,name=NameNodeStatus",
+                                    "modelerType" : "org.apache.hadoop.hdfs.server.namenode.NameNode",
+                                    "State" : "active",
+                                    "NNRole" : "NameNode",
+                                    "HostAndPort" : "localhost:19000",
+                                    "SecurityEnabled" : false,
+                                    "LastHATransitionTime" : 0
+                                  } ]}
+             """;
+        server.expect(requestTo("http://hdfs-host-1/jmx?qry=Hadoop:service%3DNameNode,name%3DNameNodeStatus"))
+                .andRespond(withSuccess(jmxRes, MediaType.APPLICATION_JSON));
+    }
+
+    private void setupActiveNN2() {
+        String jmxRes1 =
+                """
+            {"beans" : [ {
+                                    "name" : "Hadoop:service=NameNode,name=NameNodeStatus",
+                                    "modelerType" : "org.apache.hadoop.hdfs.server.namenode.NameNode",
+                                    "State" : "standby",
+                                    "NNRole" : "NameNode",
+                                    "HostAndPort" : "localhost:19000",
+                                    "SecurityEnabled" : false,
+                                    "LastHATransitionTime" : 0
+                                  } ]}
+             """;
+        server.expect(requestTo("http://hdfs-host-1/jmx?qry=Hadoop:service%3DNameNode,name%3DNameNodeStatus"))
+                .andRespond(withSuccess(jmxRes1, MediaType.APPLICATION_JSON));
+        String jmxRes2 =
+                """
+            {"beans" : [ {
+                                    "name" : "Hadoop:service=NameNode,name=NameNodeStatus",
+                                    "modelerType" : "org.apache.hadoop.hdfs.server.namenode.NameNode",
+                                    "State" : "active",
+                                    "NNRole" : "NameNode",
+                                    "HostAndPort" : "localhost:19000",
+                                    "SecurityEnabled" : false,
+                                    "LastHATransitionTime" : 0
+                                  } ]}
+             """;
+        server.expect(requestTo("http://hdfs-host-2/jmx?qry=Hadoop:service%3DNameNode,name%3DNameNodeStatus"))
+                .andRespond(withSuccess(jmxRes2, MediaType.APPLICATION_JSON));
+    }
+
+    private void setupStoppingNNs() {
+        String jmxRes =
+                """
+            {"beans" : [ {
+                                    "name" : "Hadoop:service=NameNode,name=NameNodeStatus",
+                                    "modelerType" : "org.apache.hadoop.hdfs.server.namenode.NameNode",
+                                    "State" : "stopping",
+                                    "NNRole" : "NameNode",
+                                    "HostAndPort" : "localhost:19000",
+                                    "SecurityEnabled" : false,
+                                    "LastHATransitionTime" : 0
+                                  } ]}
+             """;
+        server.expect(requestTo("http://hdfs-host-1/jmx?qry=Hadoop:service%3DNameNode,name%3DNameNodeStatus"))
+                .andRespond(withSuccess(jmxRes, MediaType.APPLICATION_JSON));
+        server.expect(requestTo("http://hdfs-host-2/jmx?qry=Hadoop:service%3DNameNode,name%3DNameNodeStatus"))
+                .andRespond(withSuccess(jmxRes, MediaType.APPLICATION_JSON));
     }
 }

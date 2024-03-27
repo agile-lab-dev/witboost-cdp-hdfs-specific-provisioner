@@ -188,10 +188,11 @@ The chart loads the `keytab` from a secret with key `cdp-private-hdfs-keytab`. T
 
 ### Hdfs configuration
 
-| Configuration | Description                       | 
-|:--------------|:----------------------------------|
-| hdfs.baseUrl  | Base URL for the WEBHDFS Rest API | 
-| hdfs.timeout  | Timeout in milliseconds           | 
+| Configuration   | Description                                            | 
+|:----------------|:-------------------------------------------------------|
+| hdfs.baseUrlNN1 | Base URL for the WEBHDFS Rest API (main NameNode)      |
+| hdfs.baseUrlNN2 | Base URL for the WEBHDFS Rest API (secondary NameNode) | 
+| hdfs.timeout    | Timeout in milliseconds                                | 
 
 ### Ranger configuration
 

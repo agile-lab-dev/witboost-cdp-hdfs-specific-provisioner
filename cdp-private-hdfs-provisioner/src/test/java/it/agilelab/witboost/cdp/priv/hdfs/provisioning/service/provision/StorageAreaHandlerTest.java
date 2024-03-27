@@ -77,7 +77,7 @@ public class StorageAreaHandlerTest {
 
     @Test
     public void testCreateNotExistingEntitiesOk() {
-        when(principalMappingService.map(Set.of("ownerUser", "ownerGroup")))
+        when(principalMappingService.map(Set.of("ownerUser", "group:ownerGroup")))
                 .thenReturn(Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
         when(rangerConfig.hdfsServiceName()).thenReturn("cm_hdfs");
         when(rangerService.findSecurityZoneByName(anyString())).thenReturn(right(Optional.empty()));
@@ -98,7 +98,7 @@ public class StorageAreaHandlerTest {
 
     @Test
     public void testCreateExistingEntitiesOk() {
-        when(principalMappingService.map(Set.of("ownerUser", "ownerGroup")))
+        when(principalMappingService.map(Set.of("ownerUser", "group:ownerGroup")))
                 .thenReturn(Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
         when(rangerConfig.hdfsServiceName()).thenReturn("cm_hdfs");
         when(rangerService.findSecurityZoneByName(anyString()))
@@ -146,7 +146,7 @@ public class StorageAreaHandlerTest {
 
     @Test
     public void testCreateWrongComponentId() {
-        when(principalMappingService.map(Set.of("ownerUser", "ownerGroup")))
+        when(principalMappingService.map(Set.of("ownerUser", "group:ownerGroup")))
                 .thenReturn(Map.of("ownerUser", right(new CDPUser("", "")), "ownerGroup", right(new CDPGroup(""))));
         String expectedError = "Component id 'wrong_id' is not in the expected shape, cannot extract attributes";
 

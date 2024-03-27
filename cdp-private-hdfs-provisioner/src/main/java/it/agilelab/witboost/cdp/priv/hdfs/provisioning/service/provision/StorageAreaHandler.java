@@ -202,9 +202,12 @@ public class StorageAreaHandler extends BaseHandler {
 
     private <T extends Specific> Either<FailedOperation, Tuple2<List<String>, List<String>>> mapOwners(
             ProvisionRequest<T> provisionRequest) {
-        var owners = Set.of(
-                provisionRequest.dataProduct().getDataProductOwner(),
-                provisionRequest.dataProduct().getDevGroup());
+        // FIXME workaround until related bug is fixed in witboost
+        String devGroup = provisionRequest.dataProduct().getDevGroup().startsWith("group:")
+                ? provisionRequest.dataProduct().getDevGroup()
+                : "group:".concat(provisionRequest.dataProduct().getDevGroup());
+
+        var owners = Set.of(provisionRequest.dataProduct().getDataProductOwner(), devGroup);
         var eitherPrincipals = principalMappingService.map(owners);
         var problems = eitherPrincipals.values().stream()
                 .filter(Either::isLeft)
