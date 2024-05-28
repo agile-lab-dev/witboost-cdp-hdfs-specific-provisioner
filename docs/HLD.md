@@ -40,7 +40,12 @@ High-Availability (HA) clusters contain a standby for the active NameNode to avo
 
 This Specific Provisioner interacts with a CDP Private Environment by creating a `folder` structure inside HDFS.
 
-The folder path and name are composed in a way to not interfere with other Data Products and/or other components of the same type in the same Data Product.
+The folder path and name should be composed in a way to not interfere with other Data Products and/or other components of the same type in the same Data Product. The provisioner doesn't enforce any naming convention and will create the folder structure based on the input descriptor based on two fields: A root folder which expects all the data product resources to be contained within (and thus used on the Security Zone), and the component specific folder as a path that will be created inside the root folder. We recommend the following structure:
+
+```yaml
+rootFolder: data-products/$domainName/$dataProductName/$dataProductMajorVersion/
+folder: $componentName/
+```
 
 Appropriate permissions are granted to the created folder.
 

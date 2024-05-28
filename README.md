@@ -164,7 +164,7 @@ To run the server locally, use:
 
 ```bash
 export PROVISIONER_VERSION=0.0.0-SNAPHSOT
-mvn -pl common spring-boot:run
+mvn -pl cdp-private-hdfs-provisioner spring-boot:run
 ```
 
 By default, the server binds to port `8888` on localhost. After it's up and running you can make provisioning requests to this address. You can access the running application [here](http://127.0.0.1:8888).

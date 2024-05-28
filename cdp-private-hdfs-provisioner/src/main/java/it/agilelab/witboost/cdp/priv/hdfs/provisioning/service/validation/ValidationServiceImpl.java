@@ -29,6 +29,15 @@ public class ValidationServiceImpl implements ValidationService {
     private final Map<String, Class<? extends Specific>> kindToSpecificClass =
             Map.of(STORAGE_KIND, StorageSpecific.class, OUTPUTPORT_KIND, Specific.class);
 
+    private final StorageAreaValidation storageAreaValidation;
+    private final OutputPortValidation outputPortValidation;
+
+    public ValidationServiceImpl(
+            StorageAreaValidation storageAreaValidation, OutputPortValidation outputPortValidation) {
+        this.storageAreaValidation = storageAreaValidation;
+        this.outputPortValidation = outputPortValidation;
+    }
+
     @Override
     public Either<FailedOperation, ProvisionRequest<? extends Specific>> validate(
             ProvisioningRequest provisioningRequest) {
@@ -74,21 +83,25 @@ public class ValidationServiceImpl implements ValidationService {
             case STORAGE_KIND:
                 var storageClass = kindToSpecificClass.get(STORAGE_KIND);
                 logger.info("Parsing Storage Area Component");
+
                 var eitherStorageToProvision = Parser.parseComponent(componentToProvisionAsJson, storageClass);
                 if (eitherStorageToProvision.isLeft()) return left(eitherStorageToProvision.getLeft());
                 componentToProvision = eitherStorageToProvision.get();
-                var storageAreaValidation = StorageAreaValidation.validate(componentToProvision);
-                if (storageAreaValidation.isLeft()) return left(storageAreaValidation.getLeft());
+
+                var storageAreaValidationResult = storageAreaValidation.validate(componentToProvision);
+                if (storageAreaValidationResult.isLeft()) return left(storageAreaValidationResult.getLeft());
                 break;
             case OUTPUTPORT_KIND:
                 var outputPortClass = kindToSpecificClass.get(OUTPUTPORT_KIND);
                 logger.info("Parsing Output Port Component");
+
                 var eitherOutputPortToProvision = Parser.parseComponent(componentToProvisionAsJson, outputPortClass);
                 if (eitherOutputPortToProvision.isLeft()) return left(eitherOutputPortToProvision.getLeft());
                 componentToProvision = eitherOutputPortToProvision.get();
-                var outputPortValidation =
-                        OutputPortValidation.validate(descriptor.getDataProduct(), componentToProvision);
-                if (outputPortValidation.isLeft()) return left(outputPortValidation.getLeft());
+
+                var outputPortValidationResult =
+                        outputPortValidation.validate(descriptor.getDataProduct(), componentToProvision);
+                if (outputPortValidationResult.isLeft()) return left(outputPortValidationResult.getLeft());
                 break;
             default:
                 String errorMessage = String.format(

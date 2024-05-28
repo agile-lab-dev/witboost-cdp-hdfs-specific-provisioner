@@ -42,17 +42,6 @@ public abstract class BaseHandler {
         return right(new ComponentInfo(components[3], components[4], components[5], components[6]));
     }
 
-    protected Either<FailedOperation, String> buildHdfsFolderPath(String componentId, String prefixPath) {
-        var eitherIdentifiers = extractIdentifiers(componentId);
-        return eitherIdentifiers.map(identifiers -> prefixPathWithTrailingSlash(prefixPath)
-                .concat(String.format(
-                        "%s/data-products/%s/%s/%s",
-                        identifiers.domain(),
-                        identifiers.dataProductId(),
-                        identifiers.dataProductMajorVersion(),
-                        identifiers.componentId())));
-    }
-
     protected Either<FailedOperation, String> buildUserRolePrefix(String componentId) {
         var eitherIdentifiers = extractIdentifiers(componentId);
         return eitherIdentifiers.map(identifiers -> String.format(

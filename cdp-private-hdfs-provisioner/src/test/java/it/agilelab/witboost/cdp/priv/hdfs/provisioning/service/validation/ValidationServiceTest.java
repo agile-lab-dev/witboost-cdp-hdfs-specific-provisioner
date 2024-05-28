@@ -8,10 +8,21 @@ import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.Provisionin
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.util.ResourceUtils;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 
+@SpringBootTest(
+        classes = {
+            ValidationServiceImpl.class,
+            StorageAreaValidation.class,
+            OutputPortValidation.class,
+            ValidationAutoConfiguration.class
+        })
 public class ValidationServiceTest {
 
-    private final ValidationServiceImpl validationService = new ValidationServiceImpl();
+    @Autowired
+    ValidationServiceImpl validationService;
 
     @Test
     public void testValidateOutputPortOk() throws IOException {

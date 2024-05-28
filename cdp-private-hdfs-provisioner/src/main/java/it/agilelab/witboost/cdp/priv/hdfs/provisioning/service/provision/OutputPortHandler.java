@@ -5,7 +5,6 @@ import static io.vavr.control.Either.right;
 import static it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.utils.RangerRoleUtils.generateUserRoleName;
 import static it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.utils.RangerRoleUtils.rangerRole;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.FailedOperation;
@@ -13,6 +12,7 @@ import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.Problem;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.config.RangerConfig;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.*;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.*;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.parser.Parser;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.PrincipalMappingService;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.RangerService;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.service.utils.RangerRoleUtils;
@@ -39,12 +39,13 @@ public class OutputPortHandler extends BaseHandler {
                 return provisionRequest
                         .dataProduct()
                         .getComponentToProvision(storageComponentId)
-                        .flatMap(s -> Option.of(s.get("specific")))
-                        .flatMap(s -> Option.of(s.get("prefixPath")))
-                        .map(JsonNode::textValue)
-                        .fold(
-                                () -> left(unknownPrefixPath(storageComponentId)),
-                                prefixPath -> buildHdfsFolderPath(storageComponentId, prefixPath));
+                        .toEither(unknownPath(storageComponentId))
+                        .flatMap(s -> Parser.parseComponent(s, StorageSpecific.class)
+                                .flatMap(ss -> {
+                                    if (ss.getSpecific() != null)
+                                        return ss.getSpecific().getPath();
+                                    else return left(unknownPath((storageComponentId)));
+                                }));
             } else {
                 return left(missingDependentStorageArea());
             }
@@ -136,8 +137,8 @@ public class OutputPortHandler extends BaseHandler {
         }
     }
 
-    private FailedOperation unknownPrefixPath(String storageComponentId) {
-        String errorMessage = String.format("prefixPath not found for the component %s", storageComponentId);
+    private FailedOperation unknownPath(String storageComponentId) {
+        String errorMessage = String.format("path not found for the component %s", storageComponentId);
         logger.error(errorMessage);
         return new FailedOperation(List.of(new Problem(errorMessage)));
     }

@@ -13,10 +13,13 @@ import org.junit.jupiter.api.Test;
 
 public class OutputPortValidationTest {
 
+    OutputPortValidation outputPortValidation = new OutputPortValidation();
+
     @Test
     public void testValidateOk() {
         StorageSpecific storageSpecific = new StorageSpecific();
-        storageSpecific.setPrefixPath("myprefix");
+        storageSpecific.setRootFolder("myprefix/healthcare/data-products/vaccinations/0");
+        storageSpecific.setFolder("storage");
         StorageArea<StorageSpecific> storageArea = new StorageArea<>();
         storageArea.setId("my_id_storage");
         storageArea.setName("storage name");
@@ -43,7 +46,7 @@ public class OutputPortValidationTest {
         nodes.add(outputPortNode);
         dataProduct.setComponents(nodes);
 
-        var actualRes = OutputPortValidation.validate(dataProduct, outputPort);
+        var actualRes = outputPortValidation.validate(dataProduct, outputPort);
 
         assertTrue(actualRes.isRight());
     }
@@ -63,7 +66,7 @@ public class OutputPortValidationTest {
 
         String expectedDesc = "The component my_id_storage is not of type OutputPort";
 
-        var actualRes = OutputPortValidation.validate(dataProduct, storageArea);
+        var actualRes = outputPortValidation.validate(dataProduct, storageArea);
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
@@ -94,7 +97,7 @@ public class OutputPortValidationTest {
 
         String expectedDesc = "Expected exactly a dependency for the component my_id_outputport, found: 0";
 
-        var actualRes = OutputPortValidation.validate(dataProduct, outputPort);
+        var actualRes = outputPortValidation.validate(dataProduct, outputPort);
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
@@ -125,7 +128,7 @@ public class OutputPortValidationTest {
 
         String expectedDesc = "OutputPort's dependency my_id_storage not found in the Descriptor";
 
-        var actualRes = OutputPortValidation.validate(dataProduct, outputPort);
+        var actualRes = outputPortValidation.validate(dataProduct, outputPort);
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());
@@ -165,7 +168,7 @@ public class OutputPortValidationTest {
         String expectedDesc =
                 "Kind of dependent component my_id_outputport2 is not right. Expected: storage, found: outputport";
 
-        var actualRes = OutputPortValidation.validate(dataProduct, outputPort);
+        var actualRes = outputPortValidation.validate(dataProduct, outputPort);
 
         assertTrue(actualRes.isLeft());
         assertEquals(1, actualRes.getLeft().problems().size());

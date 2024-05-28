@@ -45,16 +45,16 @@ public class StorageAreaHandler extends BaseHandler {
         var ownerUsers = eitherOwners.get()._1();
         var ownerGroups = eitherOwners.get()._2();
 
-        var eitherPrefixPath = getPrefixPath(provisionRequest);
-        if (eitherPrefixPath.isLeft()) return left(eitherPrefixPath.getLeft());
-        String prefixPath = eitherPrefixPath.get();
+        var eitherStorageSpecific = getStorageSpecific(provisionRequest);
+        if (eitherStorageSpecific.isLeft()) return left(eitherStorageSpecific.getLeft());
+        StorageSpecific ss = eitherStorageSpecific.get();
 
-        var rangerRes = upsertRangerEntities(provisionRequest, prefixPath, ownerUsers, ownerGroups);
-        if (rangerRes.isLeft()) return left(rangerRes.getLeft());
+        return ss.getPath().flatMap(path -> {
+            var rangerRes = upsertRangerEntities(provisionRequest, ss.getRootFolder(), path, ownerUsers, ownerGroups);
+            if (rangerRes.isLeft()) return left(rangerRes.getLeft());
 
-        var eitherHdfsFolderPath =
-                buildHdfsFolderPath(provisionRequest.component().getId(), prefixPath);
-        return eitherHdfsFolderPath.flatMap(hdfsService::createFolder);
+            return hdfsService.createFolder(path);
+        });
     }
 
     public <T extends Specific> Either<FailedOperation, Void> destroy(ProvisionRequest<T> provisionRequest) {
@@ -62,13 +62,11 @@ public class StorageAreaHandler extends BaseHandler {
         if (rangerRes.isLeft()) return left(rangerRes.getLeft());
 
         if (Boolean.TRUE.equals(provisionRequest.removeData())) {
-            var eitherPrefixPath = getPrefixPath(provisionRequest);
-            if (eitherPrefixPath.isLeft()) return left(eitherPrefixPath.getLeft());
-            String prefixPath = eitherPrefixPath.get();
-
-            var eitherHdfsFolderPath =
-                    buildHdfsFolderPath(provisionRequest.component().getId(), prefixPath);
-            return eitherHdfsFolderPath.flatMap(hdfsService::deleteFolder).map(f -> null);
+            var eitherStorageSpecific = getStorageSpecific(provisionRequest);
+            if (eitherStorageSpecific.isLeft()) return left(eitherStorageSpecific.getLeft());
+            return eitherStorageSpecific.get().getPath().flatMap(path -> hdfsService
+                    .deleteFolder(path)
+                    .map(f -> null));
         }
         return right(null);
     }
@@ -98,10 +96,10 @@ public class StorageAreaHandler extends BaseHandler {
         return right(null);
     }
 
-    private <T extends Specific> Either<FailedOperation, String> getPrefixPath(ProvisionRequest<T> provisionRequest) {
-        String prefixPath;
+    private <T extends Specific> Either<FailedOperation, StorageSpecific> getStorageSpecific(
+            ProvisionRequest<T> provisionRequest) {
         if (provisionRequest.component().getSpecific() instanceof StorageSpecific ss) {
-            prefixPath = ss.getPrefixPath();
+            return right(ss);
         } else {
             String errorMessage = String.format(
                     "The specific section of the component %s is not of type StorageSpecific",
@@ -109,7 +107,6 @@ public class StorageAreaHandler extends BaseHandler {
             logger.error(errorMessage);
             return left(new FailedOperation(Collections.singletonList(new Problem(errorMessage))));
         }
-        return right(prefixPath);
     }
 
     /*
@@ -121,7 +118,8 @@ public class StorageAreaHandler extends BaseHandler {
     */
     private synchronized <T extends Specific> Either<FailedOperation, Void> upsertRangerEntities(
             ProvisionRequest<T> provisionRequest,
-            String prefixPath,
+            String rootFolder,
+            String path,
             List<String> ownerUsers,
             List<String> ownerGroups) {
         String deployUser = rangerConfig.ownerTechnicalUser();
@@ -133,23 +131,13 @@ public class StorageAreaHandler extends BaseHandler {
                                         provisionRequest.component().getId())
                                 .flatMap(userRolePrefix -> buildPolicyPrefix(
                                                 provisionRequest.component().getId())
-                                        .flatMap(policyPrefix -> buildRangerPolicyFolderPath(
-                                                        provisionRequest
-                                                                .component()
-                                                                .getId(),
-                                                        prefixPath)
-                                                .flatMap(rangerFolderPath -> buildSecurityZoneFolderPath(
-                                                                provisionRequest
-                                                                        .component()
-                                                                        .getId(),
-                                                                prefixPath)
-                                                        .map(securityZoneFolderPath -> new Tuple6<>(
-                                                                zoneName,
-                                                                ownerRolePrefix,
-                                                                userRolePrefix,
-                                                                policyPrefix,
-                                                                rangerFolderPath,
-                                                                securityZoneFolderPath)))))));
+                                        .map(policyPrefix -> new Tuple6<>(
+                                                zoneName,
+                                                ownerRolePrefix,
+                                                userRolePrefix,
+                                                policyPrefix,
+                                                buildRangerPolicyFolderPath(path),
+                                                rootFolder)))));
         if (eitherPrefixes.isLeft()) {
             return left(eitherPrefixes.getLeft());
         }
@@ -235,16 +223,8 @@ public class StorageAreaHandler extends BaseHandler {
         return new FailedOperation(Collections.singletonList(new Problem(errorMessage)));
     }
 
-    private Either<FailedOperation, String> buildSecurityZoneFolderPath(String componentId, String prefixPath) {
-        var eitherIdentifiers = extractIdentifiers(componentId);
-        return eitherIdentifiers.map(identifiers -> prefixPathWithTrailingSlash(prefixPath)
-                .concat(String.format(
-                        "%s/data-products/%s/%s",
-                        identifiers.domain(), identifiers.dataProductId(), identifiers.dataProductMajorVersion())));
-    }
-
-    private Either<FailedOperation, String> buildRangerPolicyFolderPath(String componentId, String prefixPath) {
-        return buildHdfsFolderPath(componentId, prefixPath).map(p -> String.format("%s*", p));
+    private String buildRangerPolicyFolderPath(String path) {
+        return String.format("%s*", path);
     }
 
     private Either<FailedOperation, String> buildPolicyPrefix(String componentId) {

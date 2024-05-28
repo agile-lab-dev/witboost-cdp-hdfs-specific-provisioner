@@ -39,7 +39,8 @@
         "storageType": "Files",
         "tags": [],
         "specific": {
-          "prefixPath": "myprefix"
+          "rootFolder": "/myprefix/healthcare/data-products/vaccinations/0/",
+          "folder": "storage/"
         }
       }
     ]

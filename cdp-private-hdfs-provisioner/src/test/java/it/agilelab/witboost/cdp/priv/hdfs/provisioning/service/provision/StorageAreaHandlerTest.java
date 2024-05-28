@@ -55,7 +55,8 @@ public class StorageAreaHandlerTest {
         storageArea.setKind("storage");
         storageArea.setId("urn:dmb:cmp:healthcare:vaccinations:0:storage");
         StorageSpecific storageSpecific = new StorageSpecific();
-        storageSpecific.setPrefixPath("prefixPath");
+        storageSpecific.setRootFolder("myprefix/healthcare/data-products/vaccinations/0");
+        storageSpecific.setFolder("storage");
         storageArea.setSpecific(storageSpecific);
         DataProduct dp = new DataProduct();
         dp.setDataProductOwner("ownerUser");

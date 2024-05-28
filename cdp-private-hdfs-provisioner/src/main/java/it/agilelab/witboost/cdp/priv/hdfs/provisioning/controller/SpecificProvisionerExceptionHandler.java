@@ -2,8 +2,13 @@ package it.agilelab.witboost.cdp.priv.hdfs.provisioning.controller;
 
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.Problem;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.SpecificProvisionerValidationException;
+import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.ErrorMoreInfo;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.RequestValidationError;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.SystemError;
+import jakarta.validation.ConstraintViolationException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +30,32 @@ public class SpecificProvisionerExceptionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(SpecificProvisionerExceptionHandler.class);
 
-    @ExceptionHandler({SpecificProvisionerValidationException.class})
+    @ExceptionHandler({SpecificProvisionerValidationException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected RequestValidationError handleValidationException(SpecificProvisionerValidationException ex) {
-        return new RequestValidationError(ex.getFailedOperation().problems().stream()
-                .map(Problem::description)
-                .collect(Collectors.toList()));
+    protected RequestValidationError handleValidationException(Exception ex) {
+        List<String> problems = new ArrayList<>();
+        var error = new RequestValidationError()
+                .userMessage("Validation on the received descriptor failed, check the details for more information");
+        if (ex instanceof SpecificProvisionerValidationException customException) {
+            problems = customException.getFailedOperation().problems().stream()
+                    .map(Problem::description)
+                    .collect(Collectors.toList());
+
+        } else if (ex instanceof ConstraintViolationException validationException) {
+            problems = validationException.getConstraintViolations().stream()
+                    .map(constraintViolation -> String.format(
+                            "%s %s",
+                            constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage()))
+                    .collect(Collectors.toList());
+            error = error.inputErrorField(
+                    validationException.getConstraintViolations().size() == 1
+                            ? validationException.getConstraintViolations().stream()
+                                    .map(cv -> cv.getPropertyPath().toString())
+                                    .findFirst()
+                                    .get()
+                            : null);
+        }
+        return error.errors(problems).moreInfo(new ErrorMoreInfo(problems, Collections.EMPTY_LIST));
     }
 
     @ExceptionHandler({RuntimeException.class})

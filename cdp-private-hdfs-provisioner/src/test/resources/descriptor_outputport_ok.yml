@@ -36,7 +36,8 @@ dataProduct:
       storageType: Files
       tags: []
       specific:
-        prefixPath: myprefix
+        rootFolder: "/myprefix/healthcare/data-products/vaccinations/0/"
+        folder: "storage/"
     - kind: outputport
       id: urn:dmb:cmp:healthcare:vaccinations:0:hdfs-output-port
       name: CDP Private HDFS Output Port

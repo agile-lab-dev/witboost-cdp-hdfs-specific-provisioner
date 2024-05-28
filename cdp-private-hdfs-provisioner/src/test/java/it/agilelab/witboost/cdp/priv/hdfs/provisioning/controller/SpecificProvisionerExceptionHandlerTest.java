@@ -8,7 +8,11 @@ import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.Problem;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.common.SpecificProvisionerValidationException;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.RequestValidationError;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.openapi.model.SystemError;
+import jakarta.validation.ConstraintViolationException;
 import java.util.Collections;
+import java.util.Set;
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
+import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,6 +48,40 @@ public class SpecificProvisionerExceptionHandlerTest {
                 specificProvisionerExceptionHandler.handleValidationException(specificProvisionerValidationException);
 
         assertEquals(1, requestValidationError.getErrors().size());
+        assertEquals(
+                requestValidationError.getUserMessage(),
+                "Validation on the received descriptor failed, check the details for more information");
         requestValidationError.getErrors().forEach(e -> assertEquals(expectedError, e));
+    }
+
+    @Test
+    void testHandleConflictConstraintValidationError() {
+        String expectedError = "Validation error";
+        String expectedValidationMessage = "validation.a.path is wrong";
+        ConstraintViolationException exception = new ConstraintViolationException(
+                expectedError,
+                Set.of(ConstraintViolationImpl.forBeanValidation(
+                        null,
+                        null,
+                        null,
+                        "is wrong",
+                        null,
+                        null,
+                        null,
+                        null,
+                        PathImpl.createPathFromString("validation.a.path"),
+                        null,
+                        null)));
+
+        RequestValidationError requestValidationError =
+                specificProvisionerExceptionHandler.handleValidationException(exception);
+
+        assertEquals(1, requestValidationError.getErrors().size());
+        assertEquals(
+                requestValidationError.getUserMessage(),
+                "Validation on the received descriptor failed, check the details for more information");
+        assertEquals(requestValidationError.getInputErrorField(), "validation.a.path");
+        requestValidationError.getMoreInfo().getProblems().forEach(e -> assertEquals(expectedValidationMessage, e));
+        requestValidationError.getErrors().forEach(e -> assertEquals(expectedValidationMessage, e));
     }
 }

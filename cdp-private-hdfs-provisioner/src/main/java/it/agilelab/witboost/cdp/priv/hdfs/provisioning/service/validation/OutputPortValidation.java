@@ -11,16 +11,20 @@ import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.DataProduct;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.OutputPort;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.model.Specific;
 import it.agilelab.witboost.cdp.priv.hdfs.provisioning.parser.Parser;
+import jakarta.validation.Valid;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.validation.annotation.Validated;
 
+@org.springframework.stereotype.Component
+@Validated
 public class OutputPortValidation {
 
     private static final Logger logger = LoggerFactory.getLogger(OutputPortValidation.class);
     private static final String STORAGE_KIND = "storage";
 
-    public static Either<FailedOperation, Void> validate(DataProduct dp, Component<? extends Specific> component) {
+    public Either<FailedOperation, Void> validate(DataProduct dp, @Valid Component<? extends Specific> component) {
         logger.info("Checking component with ID {} is of type OutputPort", component.getId());
         if (component instanceof OutputPort<? extends Specific> op) {
             logger.info("Checking OutputPort component with ID {} has a dependency", component.getId());

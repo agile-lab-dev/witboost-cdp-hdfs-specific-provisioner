@@ -49,7 +49,8 @@ public class OutputPortHandlerTest {
         Specific specific = new Specific();
 
         StorageSpecific storageSpecific = new StorageSpecific();
-        storageSpecific.setPrefixPath("myprefix");
+        storageSpecific.setRootFolder("myprefix/healthcare/data-products/vaccinations/0");
+        storageSpecific.setFolder("storage");
 
         outputPort = new OutputPort<>();
         outputPort.setKind("outputport");
@@ -140,7 +141,7 @@ public class OutputPortHandlerTest {
         DataProduct dp = new DataProduct();
         dp.setComponents(nodes);
         var provisionRequest = new ProvisionRequest<>(dp, outputPort, false);
-        String expectedDesc = "prefixPath not found for the component urn:dmb:cmp:healthcare:vaccinations:0:storage";
+        String expectedDesc = "path not found for the component urn:dmb:cmp:healthcare:vaccinations:0:storage";
 
         var actualRes = outputPortHandler.create(provisionRequest);
 
